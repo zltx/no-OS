@@ -56,6 +56,6 @@ enum jesd_clocks {
 /******************************************************************************/
 
 /* @brief Application JESD initialization. */
-int32_t app_jesd_init(void);
+int32_t app_jesd_init(uint8_t uc);
 
 #endif

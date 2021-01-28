@@ -41,8 +41,7 @@
 
 #include <stdint.h>
 
-int32_t app_clocking_init(uint32_t device_clock_khz,
-		  uint32_t lmfc_rate_hz);
+int32_t app_clocking_init(uint8_t uc);
 
 void app_clocking_deinit(void);
 

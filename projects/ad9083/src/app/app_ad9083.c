@@ -18,7 +18,7 @@ bool app_ad9083_check_sysref_rate(uint32_t lmfc, uint32_t sysref)
 	return mod <= div || mod >= sysref - div;
 }
 
-int32_t app_ad9083_init(void)
+int32_t app_ad9083_init(uint8_t uc)
 {
 	struct ad9083_phy *ad9083_phy;
 	int32_t status;
@@ -62,6 +62,7 @@ int32_t app_ad9083_init(void)
 		.gpio_reset = &gpio_phy_resetb,
 		.gpio_pd = &gpio_phy_pd,
 		.gpio_ref_sel = &gpio_phy_ref_sel,
+		.uc = uc,
 	};
 
 	status = ad9083_init(&ad9083_phy, &ad9083_init_param);

@@ -434,11 +434,11 @@ int32_t ad9083_parse_init_param(struct ad9083_phy *phy,
 	return SUCCESS;
 }
 
-static int32_t ad9083_setup(struct ad9083_phy *phy)
+static int32_t ad9083_setup(struct ad9083_phy *phy, uint8_t uc)
 {
 	int32_t ret;
 	uint64_t dev_frequency_hz;
-	uint8_t uc = 0;
+
 //	ret = adi_ad9083_device_clock_config_set(
 //			      &phy->ad9083, phy-> adc_frequency_hz,
 //			      dev_frequency_hz);
@@ -544,7 +544,7 @@ int32_t ad9083_init(struct ad9083_phy **device, struct ad9083_init_param *init_p
 		goto error_3;
 	}
 
-	ret = ad9083_setup(phy); //todo
+	ret = ad9083_setup(phy, init_param->uc); //todo
 	if (ret < 0) {
 		printf("%s: ad9081_setup failed (%"PRId32")\n", __func__, ret);
 		goto error_3;

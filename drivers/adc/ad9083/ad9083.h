@@ -144,9 +144,7 @@ struct ad9083_init_param {
 	gpio_init_param	*gpio_pd;
 	/* GPIO reference selection */
 	gpio_init_param	*gpio_ref_sel;
-	struct clk	*dev_clk;
-	struct clk	*jesd_rx_clk;
-	struct clk	*jesd_tx_clk;
+	uint8_t uc;
 };
 
 /******************************************************************************/

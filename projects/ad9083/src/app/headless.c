@@ -79,40 +79,36 @@ static ssize_t iio_uart_read(char *buf, size_t len)
 extern struct axi_jesd204_rx *rx_jesd;
 int main(void)
 {
-//	adiHalErr_t err;
+	uint8_t uc = 7;
 	int32_t status;
-	struct ad9083_phy *ad9083_phy;
-	uint32_t deviceClock_kHz = 40000000;
-	uint32_t lmfc_rate = 10000000;
 
 	printf("Hello\n");
 
-	status = app_clocking_init(deviceClock_kHz, lmfc_rate);
+	status = app_clocking_init(uc);
 	if (status != SUCCESS) {
 		printf("app_clock_init() error: %" PRId32 "\n", status);
 
 		return FAILURE;
 	}
 
-	status = app_jesd_init();
+	status = app_jesd_init(uc);
 	if (status != SUCCESS) {
 		printf("app_jesd_init() error: %" PRId32 "\n", status);
 
 		return FAILURE;
 	}
 
-	status = app_ad9083_init();
+	status = app_ad9083_init(uc);
 	if (status != SUCCESS) {
 		printf("app_clock_init() error: %" PRId32 "\n", status);
 
 		return FAILURE;
 	}
 
-	status = axi_jesd204_tx_status_read(rx_jesd);
+	status = axi_jesd204_rx_status_read(rx_jesd);
 	if (status != SUCCESS) {
 		printf("axi_jesd204_tx_status_read() error: %"PRIi32"\n", status);
 	}
-
 
 	printf("Bye\n");
 	return SUCCESS;
