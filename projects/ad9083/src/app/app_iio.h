@@ -1,9 +1,9 @@
 /***************************************************************************//**
- *   @file   ad9208/src/parameters.h
- *   @brief  Parameters Definitions.
- *   @author Stefan Popa (stefan.popa@analog.com)
+ *   @file   app_iio.h
+ *   @brief  Application IIO setup.
+ *   @author DBogdan (dragos.bogdan@analog.com)
 ********************************************************************************
- * Copyright 2019(c) Analog Devices, Inc.
+ * Copyright 2020(c) Analog Devices, Inc.
  *
  * All rights reserved.
  *
@@ -36,30 +36,20 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 *******************************************************************************/
-#ifndef __PARAMETERS_H__
-#define __PARAMETERS_H__
+#ifndef APP_IIO_H_
+#define APP_IIO_H_
 
 /******************************************************************************/
 /***************************** Include Files **********************************/
 /******************************************************************************/
-#include <xparameters.h>
+#include <stdint.h>
+#include "iio_axi_adc.h"
 
-#define GPIO_DEVICE_ID		XPAR_PSU_GPIO_0_DEVICE_ID
-#define GPIO_OFFSET		78
-#define AD9528_PWDN		(GPIO_OFFSET + 32)
-#define AD9528_RSTB		(GPIO_OFFSET + 33)
-#define AD9528_REFSEL		(GPIO_OFFSET + 34)
+/******************************************************************************/
+/************************ Functions Declarations ******************************/
+/******************************************************************************/
 
-#define CLK_AD9258_CS		0x01
-#define SPI_AD9083_CS		0x00
-#define UART_DEVICE_ID          XPAR_XUARTPS_0_DEVICE_ID
-#define UART_IRQ_ID		XPAR_XUARTPS_0_INTR
-#define INTC_DEVICE_ID		XPAR_SCUGIC_SINGLE_DEVICE_ID
+/* @brief Application IIO setup. */
+int32_t iio_server_init(struct iio_axi_adc_init_param *adc_init);
 
-#define RX_JESD_BASEADDR	XPAR_AXI_AD9083_RX_JESD_RX_AXI_BASEADDR
-#define RX_XCVR_BASEADDR	XPAR_AXI_AD9083_RX_XCVR_BASEADDR
-#define RX_CORE_BASEADDR	XPAR_RX_AD9083_TPL_CORE_ADC_TPL_CORE_BASEADDR
-#define RX_DMA_BASEADDR		XPAR_AXI_AD9083_RX_DMA_BASEADDR
-#define ADC_DDR_BASEADDR	(XPAR_DDR_MEM_BASEADDR + 0x800000)
-
-#endif /* __PARAMETERS_H__ */
+#endif

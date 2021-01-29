@@ -36,51 +36,29 @@
 #include "ad9528.h"
 
 #ifdef IIO_SUPPORT
+#include "app_iio.h"
+#endif
 
-#include "iio.h"
-#include "iio_axi_adc.h"
-#include "iio_axi_dac.h"
-#include "irq.h"
-#include "irq_extra.h"
-#include "uart.h"
-#include "uart_extra.h"
-
-static struct uart_desc *uart_desc;
-
-/**
- * iio_uart_write() - Write data to UART device wrapper.
- * @buf - Pointer to buffer containing data.
- * @len - Number of bytes to write.
- * @Return: SUCCESS in case of success, FAILURE otherwise.
- */
-static ssize_t iio_uart_write(const char *buf, size_t len)
-{
-	return uart_write(uart_desc, (const uint8_t *)buf, len);
-}
-
-/**
- * iio_uart_read() - Read data from UART device wrapper.
- * @buf - Pointer to buffer containing data.
- * @len - Number of bytes to read.
- * @Return: SUCCESS in case of success, FAILURE otherwise.
- */
-static ssize_t iio_uart_read(char *buf, size_t len)
-{
-	return uart_read(uart_desc, (uint8_t *)buf, len);
-}
-
-#endif // IIO_SUPPORT
-
-/**********************************************************/
-/**********************************************************/
-/********** Talise Data Structure Initializations ********/
-/**********************************************************/
-/**********************************************************/
 extern struct axi_jesd204_rx *rx_jesd;
 int main(void)
 {
 	uint8_t uc = 7;
 	int32_t status;
+	struct axi_adc_init rx_adc_init = {
+		.name = "rx_adc",
+		.base = RX_CORE_BASEADDR,
+		.num_channels = 16,
+	};
+	struct axi_adc *rx_adc;
+
+	struct axi_dmac_init rx_dmac_init = {
+		"rx_dmac",
+		RX_DMA_BASEADDR,
+		DMA_DEV_TO_MEM,
+		0
+	};
+	struct axi_dmac *rx_dmac;
+
 
 	printf("Hello\n");
 
@@ -110,6 +88,23 @@ int main(void)
 		printf("axi_jesd204_tx_status_read() error: %"PRIi32"\n", status);
 	}
 
+	axi_adc_init(&rx_adc, &rx_adc_init);
+
+	axi_dmac_init(&rx_dmac, &rx_dmac_init);
+#ifdef IIO_SUPPORT
+	printf("The board accepts libiio clients connections through the serial backend.\n");
+
+	struct iio_axi_adc_init_param iio_axi_adc_init_par;
+	iio_axi_adc_init_par = (struct iio_axi_adc_init_param) {
+		.rx_adc = rx_adc,
+		.rx_dmac = rx_dmac,
+	};
+
+
+	return iio_server_init(&iio_axi_adc_init_par);
+#else
 	printf("Bye\n");
+
 	return SUCCESS;
+#endif
 }

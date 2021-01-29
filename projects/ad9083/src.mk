@@ -10,7 +10,6 @@
 ################################################################################
 
 ifeq (y,$(strip $(TINYIIOD)))
-SRCS += $(PROJECT)/src/app_iio.c
 LIBRARIES += iio
 endif
 
@@ -44,9 +43,6 @@ SRCS += $(NO-OS)/util/xml.c						\
 	$(PLATFORM_DRIVERS)/irq.c
 endif
 INCS += $(PROJECT)/src/parameters.h
-ifeq (y,$(strip $(TINYIIOD)))
-INCS +=	$(PROJECT)/src/app_iio.h
-endif
 INCS += $(DRIVERS)/frequency/ad9528/ad9528.h				\
 	$(DRIVERS)/adc/ad9083/ad9083.h
 INCS += $(DRIVERS)/axi_core/axi_adc_core/axi_adc_core.h			\

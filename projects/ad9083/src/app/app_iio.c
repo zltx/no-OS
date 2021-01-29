@@ -1,9 +1,9 @@
 /***************************************************************************//**
- *   @file   ad9208/src/parameters.h
- *   @brief  Parameters Definitions.
- *   @author Stefan Popa (stefan.popa@analog.com)
+ *   @file   app_iio.c
+ *   @brief  Application IIO setup.
+ *   @author DBogdan (dragos.bogdan@analog.com)
 ********************************************************************************
- * Copyright 2019(c) Analog Devices, Inc.
+ * Copyright 2020(c) Analog Devices, Inc.
  *
  * All rights reserved.
  *
@@ -36,30 +36,93 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 *******************************************************************************/
-#ifndef __PARAMETERS_H__
-#define __PARAMETERS_H__
 
 /******************************************************************************/
 /***************************** Include Files **********************************/
 /******************************************************************************/
-#include <xparameters.h>
 
-#define GPIO_DEVICE_ID		XPAR_PSU_GPIO_0_DEVICE_ID
-#define GPIO_OFFSET		78
-#define AD9528_PWDN		(GPIO_OFFSET + 32)
-#define AD9528_RSTB		(GPIO_OFFSET + 33)
-#define AD9528_REFSEL		(GPIO_OFFSET + 34)
+#include "error.h"
+#include "uart.h"
+#include "uart_extra.h"
+#include "iio.h"
+#include "parameters.h"
+#include "app_iio.h"
+#ifndef PLATFORM_MB
+#include "irq.h"
+#include "irq_extra.h"
+#endif
 
-#define CLK_AD9258_CS		0x01
-#define SPI_AD9083_CS		0x00
-#define UART_DEVICE_ID          XPAR_XUARTPS_0_DEVICE_ID
-#define UART_IRQ_ID		XPAR_XUARTPS_0_INTR
-#define INTC_DEVICE_ID		XPAR_SCUGIC_SINGLE_DEVICE_ID
+/******************************************************************************/
+/************************** Functions Implementation **************************/
+/******************************************************************************/
 
-#define RX_JESD_BASEADDR	XPAR_AXI_AD9083_RX_JESD_RX_AXI_BASEADDR
-#define RX_XCVR_BASEADDR	XPAR_AXI_AD9083_RX_XCVR_BASEADDR
-#define RX_CORE_BASEADDR	XPAR_RX_AD9083_TPL_CORE_ADC_TPL_CORE_BASEADDR
-#define RX_DMA_BASEADDR		XPAR_AXI_AD9083_RX_DMA_BASEADDR
-#define ADC_DDR_BASEADDR	(XPAR_DDR_MEM_BASEADDR + 0x800000)
+struct iio_data_buffer g_read_buff = {
+	.buff = (void *)ADC_DDR_BASEADDR,
+	.size = 0xFFFFFFFF,
+};
 
-#endif /* __PARAMETERS_H__ */
+/**
+ * @brief Application IIO setup.
+ * @return SUCCESS in case of success, FAILURE otherwise.
+ */
+int32_t iio_server_init(struct iio_axi_adc_init_param *adc_init)
+{
+	struct irq_ctrl_desc *irq_desc;
+	struct xil_irq_init_param xil_irq_init_par = {
+		.type = IRQ_PS,
+	};
+	struct irq_init_param irq_init_par = {
+		.irq_ctrl_id = INTC_DEVICE_ID,
+		.extra = &xil_irq_init_par
+	};
+	struct xil_uart_init_param xil_uart_init_par = {
+		.type = UART_PS,
+		.irq_id = UART_IRQ_ID,
+	};
+	struct uart_init_param uart_init_par = {
+		.baud_rate = 115200,
+		.device_id = UART_DEVICE_ID,
+		.extra = &xil_uart_init_par,
+	};
+
+	struct iio_init_param iio_init_par;
+	struct iio_desc *iio_app_desc;
+	struct iio_axi_adc_desc *iio_axi_adc_desc;
+	struct iio_device *adc_dev_desc;
+	int32_t status;
+
+	status = irq_ctrl_init(&irq_desc, &irq_init_par);
+	if(status < 0)
+		return status;
+	xil_uart_init_par.irq_desc = irq_desc;
+
+	status = irq_global_enable(irq_desc);
+	if (status < 0)
+		return status;
+	
+	
+	iio_init_par.phy_type = USE_UART;
+	iio_init_par.uart_init_param = &uart_init_par;
+	status = iio_init(&iio_app_desc, &iio_init_par);
+	if (status < 0)
+		return status;
+
+	status = iio_axi_adc_init(&iio_axi_adc_desc, adc_init);
+	if (status < 0)
+		return status;
+
+	iio_axi_adc_get_dev_descriptor(iio_axi_adc_desc, &adc_dev_desc);
+	status = iio_register(iio_app_desc, adc_dev_desc, "axi_adc",
+			      iio_axi_adc_desc, &g_read_buff, NULL);
+	if (status < 0)
+		return status;
+
+	do {
+		status = iio_step(iio_app_desc);
+		if (status < 0)
+			return status;
+
+	} while (true);
+
+	return SUCCESS;
+}
