@@ -42,17 +42,12 @@ int32_t app_ad9083_init(uint8_t uc)
 		.device_id = GPIO_DEVICE_ID
 	};
 	struct gpio_init_param	gpio_phy_resetb = {
-		.number = AD9528_RSTB,
+		.number = AD9803_RSTB,
 		.platform_ops = &xil_gpio_platform_ops,
 		.extra = &xil_gpio_param
 	};
 	struct gpio_init_param	gpio_phy_pd = {
-		.number = AD9528_PWDN,
-		.platform_ops = &xil_gpio_platform_ops,
-		.extra = &xil_gpio_param
-	};
-	struct gpio_init_param	gpio_phy_ref_sel = {
-		.number = AD9528_REFSEL,
+		.number = AD9803_PWDN,
 		.platform_ops = &xil_gpio_platform_ops,
 		.extra = &xil_gpio_param
 	};
@@ -61,7 +56,6 @@ int32_t app_ad9083_init(uint8_t uc)
 		.spi_init = &ad9083_spi_init_param,
 		.gpio_reset = &gpio_phy_resetb,
 		.gpio_pd = &gpio_phy_pd,
-		.gpio_ref_sel = &gpio_phy_ref_sel,
 		.uc = uc,
 	};
 

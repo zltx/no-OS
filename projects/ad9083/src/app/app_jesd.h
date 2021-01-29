@@ -1,7 +1,7 @@
 /***************************************************************************//**
  *   @file   app_jesd.h
  *   @brief  Application JESD initialization.
- *   @author DBogdan (dragos.bogdan@analog.com)
+ *   @author Cristian Pop (cristian.pop@analog.com)
 ********************************************************************************
  * Copyright 2020(c) Analog Devices, Inc.
  *

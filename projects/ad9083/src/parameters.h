@@ -1,9 +1,9 @@
 /***************************************************************************//**
- *   @file   ad9208/src/parameters.h
+ *   @file   parameters.h
  *   @brief  Parameters Definitions.
- *   @author Stefan Popa (stefan.popa@analog.com)
+ *   @author Cristian Pop (cristian.pop@analog.com)
 ********************************************************************************
- * Copyright 2019(c) Analog Devices, Inc.
+ * Copyright 2021(c) Analog Devices, Inc.
  *
  * All rights reserved.
  *
@@ -46,8 +46,8 @@
 
 #define GPIO_DEVICE_ID		XPAR_PSU_GPIO_0_DEVICE_ID
 #define GPIO_OFFSET		78
-#define AD9528_PWDN		(GPIO_OFFSET + 32)
-#define AD9528_RSTB		(GPIO_OFFSET + 33)
+#define AD9803_PWDN		(GPIO_OFFSET + 32)
+#define AD9803_RSTB		(GPIO_OFFSET + 33)
 #define AD9528_REFSEL		(GPIO_OFFSET + 34)
 
 #define CLK_AD9258_CS		0x01

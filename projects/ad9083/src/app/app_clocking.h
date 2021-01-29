@@ -1,9 +1,9 @@
 /***************************************************************************//**
  *   @file   app_clocking.h
  *   @brief  Clock setup and initialization routines.
- *   @author Darius Berghe (darius.berghe@analog.com)
+ *   @author Cristian Pop (cristian.pop@analog.com)
 ********************************************************************************
- * Copyright 2019(c) Analog Devices, Inc.
+ * Copyright 2021(c) Analog Devices, Inc.
  *
  * All rights reserved.
  *

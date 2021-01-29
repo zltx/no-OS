@@ -1,7 +1,7 @@
 /***************************************************************************//**
  *   @file   app_jesd.c
  *   @brief  Application JESD setup.
- *   @author DBogdan (dragos.bogdan@analog.com)
+ *   @author Cristian Pop (cristian.pop@analog.com)
 ********************************************************************************
  * Copyright 2020(c) Analog Devices, Inc.
  *
@@ -47,8 +47,6 @@
 #include "error.h"
 #include "parameters.h"
 #include "app_jesd.h"
-#include "app_config.h"
-#include "stdio.h"
 #include "adi_cms_api_common.h"
 /******************************************************************************/
 /************************ Variables Definitions *******************************/

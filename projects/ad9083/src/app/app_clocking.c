@@ -1,9 +1,9 @@
 /***************************************************************************//**
  *   @file   app_clocking.c
  *   @brief  Clock setup and initialization routines.
- *   @author Darius Berghe (darius.berghe@analog.com)
+ *   @author Cristian Pop (cristian.pop@analog.com)
 ********************************************************************************
- * Copyright 2019(c) Analog Devices, Inc.
+ * Copyright 2021(c) Analog Devices, Inc.
  *
  * All rights reserved.
  *
@@ -40,9 +40,6 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
-
-#include "app_config.h"
-#include "app_ad9083.h"
 
 #include "ad9528.h"
 
@@ -82,6 +79,16 @@ int32_t app_clocking_init(uint8_t uc)
 	struct ad9528_channel_spec ad9528_channels[14];
 	struct ad9528_init_param ad9528_param;
 	struct ad9528_platform_data ad9528_pdata;
+
+	struct xil_gpio_init_param  xil_gpio_param = {
+		.type = GPIO_PS,
+		.device_id = GPIO_DEVICE_ID
+	};
+	struct gpio_init_param	gpio_phy_ref_sel = {
+		.number = AD9528_REFSEL,
+		.platform_ops = &xil_gpio_platform_ops,
+		.extra = &xil_gpio_param
+	};
 
 	// ad9528 defaults
 	ad9528_param.pdata = &ad9528_pdata;
@@ -201,37 +208,6 @@ int32_t app_clocking_init(uint8_t uc)
 
 	ad9528_clk_set_rate(clkchip_device, FPGA_SYSREF_CLK, clk_hz[uc][1]/64);
 	ad9528_clk_set_rate(clkchip_device, ADC_SYSREF_CLK, clk_hz[uc][1]/64);
-
-//	/* If the current rate is not OK, change it */
-//	if (!(app_ad9083_check_sysref_rate(lmfc_rate_hz, rate_dev) &&
-//	      (rate_fmc == rate_dev))) {
-//		/*
-//		* Try to find a rate that integer divides the LMFC. Starting with a low
-//		* rate is a good idea and then slowly go up in case the clock generator
-//		* can't generate such slow rates.
-//		*/
-//		for (n = 64; n > 0; n--) {
-//			rate_dev = ad9528_clk_round_rate(clkchip_device, ADC_SYSREF_CLK, lmfc_rate_hz / n);
-//
-//			if (app_ad9083_check_sysref_rate(lmfc_rate_hz, rate_dev))
-//				break;
-//		}
-//
-//		if (n == 0) {
-//			printf("Could not find suitable SYSREF rate for LMFC of %u\n", lmfc_rate_hz);
-//			goto error_1;
-//		}
-//
-//		ret = ad9528_clk_set_rate(clkchip_device, FPGA_SYSREF_CLK, rate_fmc);
-//		if (ret)
-//			printf("Failed to set FMC SYSREF rate to %u Hz: %d\n",
-//			       rate_fmc, ret);
-//
-//		ret = ad9528_clk_set_rate(clkchip_device, ADC_SYSREF_CLK, rate_dev);
-//		if (ret)
-//			printf("Failed to set DEV SYSREF rate to %u Hz: %d\n",
-//			       rate_fmc, ret);
-//	}
 
 	return SUCCESS;
 

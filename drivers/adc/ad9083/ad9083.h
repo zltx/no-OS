@@ -142,8 +142,6 @@ struct ad9083_init_param {
 	gpio_init_param	*gpio_reset;
 	/* GPIO power down */
 	gpio_init_param	*gpio_pd;
-	/* GPIO reference selection */
-	gpio_init_param	*gpio_ref_sel;
 	uint8_t uc;
 };
 
