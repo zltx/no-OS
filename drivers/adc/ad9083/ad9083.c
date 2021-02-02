@@ -196,6 +196,8 @@ int32_t ad9083_init(struct ad9083_phy **device, struct ad9083_init_param *init_p
 	if (ret < 0)
 		goto error_1;
 
+	gpio_direction_output(phy->gpio_reset, GPIO_HIGH);
+
 	/* SPI */
 	ret = spi_init(&phy->spi_desc, init_param->spi_init);
 	if (ret < 0)
@@ -213,7 +215,7 @@ int32_t ad9083_init(struct ad9083_phy **device, struct ad9083_init_param *init_p
 	if (ret < 0)
 		goto error_3;
 	/* software reset, resistor is not mounted */
-	ret = adi_ad9083_device_reset(&phy->ad9083, AD9083_SOFT_RESET_AND_INIT);
+	ret = adi_ad9083_device_reset(&phy->ad9083, AD9083_HARD_RESET);
 	if (ret < 0) {
 		printf("%s: reset/init failed (%"PRId32")\n", __func__, ret);
 		goto error_3;
