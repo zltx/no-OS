@@ -152,6 +152,15 @@ static int32_t ad9083_setup(struct ad9083_phy *phy, uint8_t uc)
 {
 	int32_t ret;
 
+	/* software reset, resistor is not mounted */
+	ret = adi_ad9083_device_reset(&phy->ad9083, AD9083_SOFT_RESET);
+	if (ret != 0)
+		return ret;
+
+	ret = adi_ad9083_device_init(&phy->ad9083);
+	if (ret != 0)
+		return ret;
+
 	ret = adi_ad9083_device_clock_config_set(&phy->ad9083, clk_hz[uc][2], clk_hz[uc][0]);
 	if (ret != 0)
 		return ret;
@@ -214,12 +223,6 @@ int32_t ad9083_init(struct ad9083_phy **device, struct ad9083_init_param *init_p
 
 	if (ret < 0)
 		goto error_3;
-	/* software reset, resistor is not mounted */
-	ret = adi_ad9083_device_reset(&phy->ad9083, AD9083_HARD_RESET);
-	if (ret < 0) {
-		printf("%s: reset/init failed (%"PRId32")\n", __func__, ret);
-		goto error_3;
-	}
 
 	ret = adi_ad9083_device_chip_id_get(&phy->ad9083, &chip_id);
 	if (ret < 0) {
@@ -236,7 +239,7 @@ int32_t ad9083_init(struct ad9083_phy **device, struct ad9083_init_param *init_p
 
 	ret = ad9083_setup(phy, init_param->uc);
 	if (ret < 0) {
-		printf("%s: ad9081_setup failed (%"PRId32")\n", __func__, ret);
+		printf("%s: ad9083_setup failed (%"PRId32")\n", __func__, ret);
 		goto error_3;
 	}
 

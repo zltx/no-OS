@@ -68,12 +68,12 @@
 extern struct axi_jesd204_rx *rx_jesd;
 int main(void)
 {
-	uint8_t uc = 7;
+	uint8_t uc = 9;
 	int32_t status;
 	struct axi_adc_init rx_adc_init = {
 		.name = "rx_adc",
 		.base = RX_CORE_BASEADDR,
-		.num_channels = 16,
+		.num_channels = 8,
 	};
 	struct axi_adc *rx_adc;
 
