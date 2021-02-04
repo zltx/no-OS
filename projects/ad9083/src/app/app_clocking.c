@@ -185,6 +185,7 @@ int32_t app_clocking_init(uint8_t uc)
 
 	/* Reset pin is tied up to P3V3_CLK_PLL trough a pull up resistor */
 	ad9528_param.gpio_resetb = NULL;
+	ad9528_param.gpio_ref_sel = &gpio_phy_ref_sel;
 
 
 	/** < Insert User System Clock(s) Initialization Code Here >

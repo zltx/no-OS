@@ -482,6 +482,7 @@ struct ad9528_dev {
 	spi_desc *spi_desc;
 	/* GPIO */
 	gpio_desc *gpio_resetb;
+	gpio_desc *gpio_ref_sel;
 	/* Device Settings */
 	struct ad9528_state ad9528_st;
 	struct ad9528_platform_data *pdata;
@@ -492,6 +493,8 @@ struct ad9528_init_param {
 	spi_init_param spi_init;
 	/* GPIO */
 	gpio_init_param *gpio_resetb;
+	/* Reference clock select */
+	gpio_init_param *gpio_ref_sel;
 	/* Device Settings */
 	struct ad9528_platform_data *pdata;
 };

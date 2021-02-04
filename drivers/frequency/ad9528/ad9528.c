@@ -386,6 +386,11 @@ int32_t ad9528_setup(struct ad9528_dev **device,
 
 	ad9528_reset(dev);
 
+	ret = gpio_get_optional(&dev->gpio_ref_sel, init_param.gpio_ref_sel);
+	if (ret < 0)
+		return ret;
+	gpio_direction_output(dev->gpio_ref_sel, GPIO_LOW);
+
 	ret = ad9528_spi_write_n(dev,
 				 AD9528_SERIAL_PORT_CONFIG_B,
 				 AD9528_SER_CONF_READ_BUFFERED);
