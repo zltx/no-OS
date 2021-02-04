@@ -18,9 +18,10 @@ bool app_ad9083_check_sysref_rate(uint32_t lmfc, uint32_t sysref)
 	return mod <= div || mod >= sysref - div;
 }
 
+struct ad9083_phy *ad9083_phy;
 int32_t app_ad9083_init(uint8_t uc)
 {
-	struct ad9083_phy *ad9083_phy;
+
 	int32_t status;
 
 	struct xil_spi_init_param xil_spi_param = {

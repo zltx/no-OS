@@ -66,10 +66,12 @@
 #endif
 #endif
 extern struct axi_jesd204_rx *rx_jesd;
+struct ad9083_phy *ad9083_phy;
 int main(void)
 {
 	uint8_t uc = 9;
 	int32_t status;
+	uint16_t status1;
 	struct axi_adc_init rx_adc_init = {
 		.name = "rx_adc",
 		.base = RX_CORE_BASEADDR,
@@ -113,6 +115,9 @@ int main(void)
 	}
 
 	axi_adc_init(&rx_adc, &rx_adc_init);
+	status = adi_ad9083_jesd_tx_link_status_get(&ad9083_phy->ad9083, &status1);
+	if (status != SUCCESS)
+		return FAILURE;
 
 	axi_dmac_init(&rx_dmac, &rx_dmac_init);
 #ifdef IIO_SUPPORT

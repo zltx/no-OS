@@ -177,6 +177,21 @@ static int32_t ad9083_setup(struct ad9083_phy *phy, uint8_t uc)
 	if (ret != 0)
 		return ret;
 
+
+//
+//
+//	ret = adi_ad9083_rx_test_mode_enable_set(&phy->ad9083, 1);
+//	if (ret != 0)
+//			return ret;
+//
+//	ret = adi_ad9083_rx_test_mode_res_set(&phy->ad9083, 16, 16);
+//	if (ret != 0)
+//				return ret;
+//
+//	ret = adi_ad9083_jesd_tx_phy_prbs_test(&phy->ad9083, 0);
+//	if (ret != 0)
+//					return ret;
+
 	return SUCCESS;
 }
 
@@ -249,6 +264,7 @@ int32_t ad9083_init(struct ad9083_phy **device, struct ad9083_init_param *init_p
 	printf("AD9083 Rev. %u Grade %u (API %u.%u.%u) probed\n",
 	       chip_id.dev_revision, chip_id.prod_grade,
 	       api_rev[0], api_rev[1], api_rev[2]);
+	*device = phy;
 
 	return SUCCESS;
 
