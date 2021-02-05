@@ -39,6 +39,7 @@ ifeq (y,$(strip $(TINYIIOD)))
 SRCS += $(NO-OS)/util/xml.c						\
 	$(NO-OS)/util/fifo.c						\
 	$(NO-OS)/iio/iio_axi_adc/iio_axi_adc.c				\
+	$(NO-OS)/iio/iio_ad9083/iio_ad9083.c				\
 	$(NO-OS)/util/list.c						\
 	$(PLATFORM_DRIVERS)/uart.c					\
 	$(PLATFORM_DRIVERS)/irq.c
@@ -70,5 +71,6 @@ INCS += $(INCLUDE)/xml.h						\
 	$(INCLUDE)/list.h						\
 	$(PLATFORM_DRIVERS)/irq_extra.h					\
 	$(PLATFORM_DRIVERS)/uart_extra.h                                \
+	$(NO-OS)/iio/iio_ad9083/iio_ad9083.h				\
 	$(NO-OS)/iio/iio_axi_adc/iio_axi_adc.h
 endif

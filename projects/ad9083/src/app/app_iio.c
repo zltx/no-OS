@@ -47,6 +47,7 @@
 #include "iio.h"
 #include "parameters.h"
 #include "app_iio.h"
+#include "ad9083.h"
 #ifndef PLATFORM_MB
 #include "irq.h"
 #include "irq_extra.h"
@@ -60,6 +61,7 @@ struct iio_data_buffer g_read_buff = {
 	.buff = (void *)ADC_DDR_BASEADDR,
 	.size = 0xFFFFFFFF,
 };
+extern struct ad9083_phy *ad9083_phy;
 
 /**
  * @brief Application IIO setup.
@@ -89,6 +91,7 @@ int32_t iio_server_init(struct iio_axi_adc_init_param *adc_init)
 	struct iio_desc *iio_app_desc;
 	struct iio_axi_adc_desc *iio_axi_adc_desc;
 	struct iio_device *adc_dev_desc;
+	struct iio_device *ad9083_dev_desc;
 	int32_t status;
 
 	status = irq_ctrl_init(&irq_desc, &irq_init_par);
@@ -116,6 +119,14 @@ int32_t iio_server_init(struct iio_axi_adc_init_param *adc_init)
 			      iio_axi_adc_desc, &g_read_buff, NULL);
 	if (status < 0)
 		return status;
+
+	iio_demo_get_dev_descriptor(&ad9083_dev_desc);
+	status = iio_register(iio_app_desc, ad9083_dev_desc, "ad9083",
+			ad9083_phy, NULL, NULL);
+	if (status < 0)
+		return status;
+
+
 
 	do {
 		status = iio_step(iio_app_desc);

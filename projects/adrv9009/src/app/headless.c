@@ -452,6 +452,7 @@ int main(void)
 		.size = 0xFFFFFFFF,
 	};
 	iio_axi_dac_get_dev_descriptor(iio_axi_dac_desc, &dac_dev_desc);
+
 	status = iio_register(iio_desc, dac_dev_desc, "axi_dac",
 			      iio_axi_dac_desc, NULL, &write_buff);
 

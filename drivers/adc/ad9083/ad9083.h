@@ -153,4 +153,8 @@ int32_t ad9083_init(struct ad9083_phy **device, struct ad9083_init_param *init_p
 /* Remove the device. */
 int32_t ad9083_remove(struct ad9083_phy *device);
 
+int32_t adi_ad9083_reg_get(struct ad9083_phy *device , uint32_t reg, uint8_t *readval);
+
+int32_t adi_ad9083_reg_set(struct ad9083_phy *device, uint32_t reg, uint8_t writeval);
+
 #endif // __AD9083_H__

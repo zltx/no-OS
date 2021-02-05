@@ -65,6 +65,39 @@ extern int32_t adi_ad9083_jtx_startup(adi_ad9083_device_t *device,
 
 #define CHIPID_AD9083	0x00EA
 #define CHIPID_MASK	0xFFFF
+#define SPI_IN_OUT_BUFF_SZ   0x3
+int32_t adi_ad9083_reg_get(struct ad9083_phy *device , uint32_t reg, uint8_t *readval)
+{
+	int32_t ret = 0;
+    uint8_t data[SPI_IN_OUT_BUFF_SZ] = {0};
+
+    if (reg < 0x1000) {
+        data[0] = (((reg >> 8) | 0x80) & 0xFF);
+        data[1] = (reg & 0xFF);
+        ret = spi_write_and_read(device->spi_desc, data, SPI_IN_OUT_BUFF_SZ);
+        if (ret != 0)
+        		return ret;
+
+        *readval = data[2];
+    }
+    return API_CMS_ERROR_OK;
+}
+
+int32_t adi_ad9083_reg_set(struct ad9083_phy *device, uint32_t reg, uint8_t writeval)
+{
+	int32_t ret = 0;
+    uint8_t data[SPI_IN_OUT_BUFF_SZ] = {0};
+
+    if (reg < 0x1000) {
+        data[0] = ((reg >> 8) & 0xFF);
+        data[1] = (reg & 0xFF);
+        data[2] = writeval;
+        ret = spi_write_and_read(device->spi_desc, data, SPI_IN_OUT_BUFF_SZ);
+        if (ret != 0)
+        		return ret;
+    }
+    return API_CMS_ERROR_OK;
+}
 
 /**
  * Spi write and read compatible with ad9083 API
