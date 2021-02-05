@@ -27,7 +27,7 @@ uint64_t clk_hz[][3] = {
     { (uint64_t)125e6,    (uint64_t)500e6,    (uint64_t)1000e6 }, /* uc4,  Lane Rate: 10Gps */
     { (uint64_t)250e6,    (uint64_t)750e6,    (uint64_t)1000e6 }, /* uc5,  Lane Rate: 15Gps */
     { (uint64_t)100e6,    (uint64_t)500e6,    (uint64_t)2000e6 }, /* uc6,  Lane Rate: 10Gps */
-    { (uint64_t)250e6,    (uint64_t)500e6,    (uint64_t)2000e6 }, /* uc7,  Lane Rate: 10Gps */ //orig
+    { (uint64_t)250e6,    (uint64_t)250e6,    (uint64_t)2000e6 }, /* uc7,  Lane Rate: 10Gps */ //orig
     { (uint64_t)200e6,    (uint64_t)600e6,    (uint64_t)1600e6 }, /* uc8,  Lane Rate: 12Gps */
     { (uint64_t)250e6,    (uint64_t)250e6,    (uint64_t)2000e6 }, /* uc9,  Lane Rate: 10Gps */ //orig
 };
