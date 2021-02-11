@@ -73,6 +73,8 @@
 
 #define JESD204_RX_REG_LINK_CONF0		0x210
 
+#define JESD204_RX_REG_LINK_CONF4		0x21C
+
 #define JESD204_RX_REG_LINK_CONF2		0x240
 #define JESD204_RX_LINK_CONF2_BUFFER_EARLY_RELEASE	BIT(16)
 
@@ -538,8 +540,14 @@ int32_t axi_jesd204_rx_init(struct axi_jesd204_rx **jesd204,
 
 	axi_jesd204_rx_read(jesd, JESD204_RX_REG_SYNTH_NUM_LANES,
 			    &jesd->num_lanes);
+
 	axi_jesd204_rx_read(jesd, JESD204_RX_REG_SYNTH_DATA_PATH_WIDTH,
 			    &jesd->data_path_width);
+	jesd->data_path_width_tpl = (jesd->data_path_width >> 8) & 0x0F; //cristi
+	jesd->data_path_width &= 0xFF;
+
+
+
 	axi_jesd204_rx_read(jesd, JESD204_RX_REG_SYNTH_REG_1,
 			    &synth_1);
 	jesd->encoder = JESD204_RX_ENCODER_GET(synth_1);
@@ -549,9 +557,13 @@ int32_t axi_jesd204_rx_init(struct axi_jesd204_rx **jesd204,
 	else if (jesd->encoder >= JESD204_RX_ENCODER_MAX)
 		goto err;
 
+	uint32_t x = ((init->octets_per_frame * init->frames_per_multiframe) / jesd->data_path_width_tpl) - 1;
+	axi_jesd204_rx_write(jesd, JESD204_RX_REG_LINK_CONF4, x); //cristi
+
 	jesd->config.octets_per_frame = init->octets_per_frame;
 	jesd->config.frames_per_multiframe = init->frames_per_multiframe;
 	jesd->config.subclass_version = init->subclass;
+
 
 	axi_jesd204_rx_lane_clk_disable(jesd);
 
