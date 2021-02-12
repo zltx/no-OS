@@ -557,8 +557,7 @@ int32_t axi_jesd204_rx_init(struct axi_jesd204_rx **jesd204,
 	else if (jesd->encoder >= JESD204_RX_ENCODER_MAX)
 		goto err;
 
-	uint32_t x = ((init->octets_per_frame * init->frames_per_multiframe) / jesd->data_path_width_tpl) - 1;
-	axi_jesd204_rx_write(jesd, JESD204_RX_REG_LINK_CONF4, x); //cristi
+
 
 	jesd->config.octets_per_frame = init->octets_per_frame;
 	jesd->config.frames_per_multiframe = init->frames_per_multiframe;
@@ -566,6 +565,9 @@ int32_t axi_jesd204_rx_init(struct axi_jesd204_rx **jesd204,
 
 
 	axi_jesd204_rx_lane_clk_disable(jesd);
+
+	uint32_t x = ((init->octets_per_frame * init->frames_per_multiframe) / jesd->data_path_width_tpl) - 1;
+	axi_jesd204_rx_write(jesd, JESD204_RX_REG_LINK_CONF4, x); //cristi
 
 	status = axi_jesd204_rx_apply_config(jesd, &jesd->config);
 	if (status != SUCCESS)

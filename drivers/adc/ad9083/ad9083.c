@@ -211,19 +211,21 @@ static int32_t ad9083_setup(struct ad9083_phy *phy, uint8_t uc)
 		return ret;
 
 
-//
-//
-//	ret = adi_ad9083_rx_test_mode_enable_set(&phy->ad9083, 1);
-//	if (ret != 0)
-//			return ret;
-//
+
+
+
 //	ret = adi_ad9083_rx_test_mode_res_set(&phy->ad9083, 16, 16);
 //	if (ret != 0)
 //				return ret;
 //
-//	ret = adi_ad9083_jesd_tx_phy_prbs_test(&phy->ad9083, 0);
+//	ret = adi_ad9083_jesd_tx_phy_prbs_test(&phy->ad9083, PRBS7);
 //	if (ret != 0)
 //					return ret;
+//
+//	ret = adi_ad9083_rx_test_mode_enable_set(&phy->ad9083, 1);
+//	if (ret != 0)
+//			return ret;
+
 
 	return SUCCESS;
 }

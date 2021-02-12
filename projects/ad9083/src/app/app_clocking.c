@@ -198,7 +198,7 @@ int32_t app_clocking_init(uint8_t uc)
 		goto error_1;
 	}
 
-	fpga_glb_clk = ad9528_clk_round_rate(clkchip_device, FPGA_GLBL_CLK, clk_hz[uc][1]);
+	fpga_glb_clk = ad9528_clk_round_rate(clkchip_device, FPGA_GLBL_CLK, clk_hz[uc][1] / 4);
 	fpga_ref_clk = ad9528_clk_round_rate(clkchip_device, FPGA_REF_CLK, clk_hz[uc][1]);
 	dev_ref_clk = ad9528_clk_round_rate(clkchip_device, ADC_REF_CLK, clk_hz[uc][0]);
 
@@ -207,8 +207,8 @@ int32_t app_clocking_init(uint8_t uc)
 	ad9528_clk_set_rate(clkchip_device, FPGA_REF_CLK, fpga_ref_clk);
 	ad9528_clk_set_rate(clkchip_device, ADC_REF_CLK, dev_ref_clk);
 
-	ad9528_clk_set_rate(clkchip_device, FPGA_SYSREF_CLK, clk_hz[uc][1]/64);
-	ad9528_clk_set_rate(clkchip_device, ADC_SYSREF_CLK, clk_hz[uc][1]/64);
+	ad9528_clk_set_rate(clkchip_device, FPGA_SYSREF_CLK, clk_hz[uc][1]/1024);
+	ad9528_clk_set_rate(clkchip_device, ADC_SYSREF_CLK, clk_hz[uc][1]/1024);
 
 	return SUCCESS;
 

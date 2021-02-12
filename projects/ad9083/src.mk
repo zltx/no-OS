@@ -16,7 +16,8 @@ endif
 SRC_DIRS += $(PROJECT)/src/app
 #SRC_DIRS += $(DRIVERS)/adc/ad9083/api_01
 #SRC_DIRS += $(DRIVERS)/adc/ad9083/api_02
-SRC_DIRS += $(DRIVERS)/adc/ad9083/api_03
+# SRC_DIRS += $(DRIVERS)/adc/ad9083/api_03
+SRC_DIRS += $(DRIVERS)/adc/ad9083/api_05
 
 SRCS += $(DRIVERS)/spi/spi.c						\
 	$(DRIVERS)/gpio/gpio.c						\

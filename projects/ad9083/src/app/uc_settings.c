@@ -20,15 +20,15 @@
 /*============= D A T A ====================*/
 uint64_t clk_hz[][3] = {
       /*-----dev_ref----*//*----fpga_ref----*//*-----adc_clk----*/
-    { (uint64_t)250e6,    (uint64_t)500e6,    (uint64_t)2000e6 }, /* uc0,  Lane Rate: 10Gps */
-    { (uint64_t)250e6,    (uint64_t)750e6,    (uint64_t)2000e6 }, /* uc1,  Lane Rate: 15Gps */
-    { (uint64_t)250e6,    (uint64_t)500e6,    (uint64_t)2000e6 }, /* uc2,  Lane Rate: 10Gps */
-    { (uint64_t)200e6,    (uint64_t)800e6,    (uint64_t)1600e6 }, /* uc3,  Lane Rate: 16Gps */
-    { (uint64_t)125e6,    (uint64_t)500e6,    (uint64_t)1000e6 }, /* uc4,  Lane Rate: 10Gps */
-    { (uint64_t)250e6,    (uint64_t)750e6,    (uint64_t)1000e6 }, /* uc5,  Lane Rate: 15Gps */
-    { (uint64_t)100e6,    (uint64_t)500e6,    (uint64_t)2000e6 }, /* uc6,  Lane Rate: 10Gps */
-    { (uint64_t)250e6,    (uint64_t)250e6,    (uint64_t)2000e6 }, /* uc7,  Lane Rate: 10Gps */ //orig
-    { (uint64_t)200e6,    (uint64_t)600e6,    (uint64_t)1600e6 }, /* uc8,  Lane Rate: 12Gps */
+    { (uint64_t)250e6,    (uint64_t)500e6,    (uint64_t)2000e6 }, /* uc0,  Lane Rate: 10Gbps */
+    { (uint64_t)250e6,    (uint64_t)750e6,    (uint64_t)2000e6 }, /* uc1,  Lane Rate: 15Gbps */
+    { (uint64_t)250e6,    (uint64_t)500e6,    (uint64_t)2000e6 }, /* uc2,  Lane Rate: 10Gbps */
+    { (uint64_t)200e6,    (uint64_t)800e6,    (uint64_t)1600e6 }, /* uc3,  Lane Rate: 16Gbps */
+    { (uint64_t)125e6,    (uint64_t)500e6,    (uint64_t)1000e6 }, /* uc4,  Lane Rate: 10Gbps */
+    { (uint64_t)250e6,    (uint64_t)375e6,    (uint64_t)1000e6 }, /* uc5,  Lane Rate: 7.5Gbps */
+    { (uint64_t)100e6,    (uint64_t)500e6,    (uint64_t)2000e6 }, /* uc6,  Lane Rate: 10Gbps */
+    { (uint64_t)250e6,    (uint64_t)500e6,    (uint64_t)2000e6 }, /* uc7,  Lane Rate: 10Gbps */
+    { (uint64_t)200e6,    (uint64_t)600e6,    (uint64_t)1600e6 }, /* uc8,  Lane Rate: 12Gbps */
     { (uint64_t)250e6,    (uint64_t)250e6,    (uint64_t)2000e6 }, /* uc9,  Lane Rate: 10Gps */ //orig
 };
 
@@ -137,9 +137,10 @@ uint8_t decimation[][4] = {
     {   AD9083_CIC_DEC_8,   AD9083_J_DEC_16,  0,  0 }, /* uc2 */
     {   AD9083_CIC_DEC_4,   AD9083_J_DEC_16,  0,  0 }, /* uc3 */
     {   AD9083_CIC_DEC_8,   AD9083_J_DEC_1,   0,  0 }, /* uc4 */
-    {   AD9083_CIC_DEC_4,   AD9083_J_DEC_1,   0,  0 }, /* uc5 */
+    {   AD9083_CIC_DEC_8,   AD9083_J_DEC_1,   0,  0 }, /* uc5 */
     {   AD9083_CIC_DEC_4,   AD9083_J_DEC_16,  0,  0 }, /* uc6 */
     {   AD9083_CIC_DEC_4,   AD9083_J_DEC_4,   0,  0 }, /* uc7 */
+//    {   AD9083_CIC_DEC_8,   AD9083_J_DEC_1,   0,  0 }, /* uc7 */
     {   AD9083_CIC_DEC_4,   AD9083_J_DEC_1,  16, 16 }, /* uc8 */
     {   AD9083_CIC_DEC_4,   AD9083_J_DEC_8,   0,  0 }, /* uc9 */
 };
@@ -161,14 +162,14 @@ uint8_t jtx_logiclane_mapping_pe_brd[4] = { 0, 1, 2, 3 };
 
 adi_cms_jesd_param_t jtx_param[] = {
     /*L   F   M   S   HD  K    N    N'   CF  CS DID BID LID  SC SCR */
-    { 2, 32, 32,  1,  1,  32,  16,  16,  0,  0,  0,  0,  0,  0,  1 }, /* uc0 : rxmode = 196 */
-    { 4,  6, 16,  1,  1,  32,  12,  12,  0,  0,  0,  0,  0,  0,  1 }, /* uc1 : rxmode = 473 */
-    { 1, 64, 32,  1,  1,  16,  16,  16,  0,  0,  0,  0,  0,  0,  1 }, /* uc2 : rxmode = 202 */
-    { 1, 64, 32,  1,  1,  16,  16,  16,  0,  0,  0,  0,  0,  0,  1 }, /* uc3 : rxmode = 199 */
-    { 3,  8, 16,  1,  1,  32,  12,  12,  0,  0,  0,  0,  0,  0,  0 }, /* uc4 : rxmode = 183 */
-    { 4,  6, 16,  1,  1,  32,  12,  12,  0,  0,  0,  0,  0,  0,  1 }, /* uc5 : rxmode = 179 */
-    { 2, 32, 32,  1,  1,  32,  16,  16,  0,  0,  0,  0,  0,  0,  1 }, /* uc6 : rxmode = 196 */
-    { 4,  8, 16,  1,  1,  32,  16,  16,  0,  0,  0,  0,  0,  0,  1 }, /* uc7 : rxmode = 152 */
-    { 4, 48, 96,  1,  1,  16,  16,  16,  0,  0,  0,  0,  0,  0,  1 }, /* uc8 : rxmode =     */
-    { 4,  4,  8,  1,  1,  32,  16,  16,  0,  0,  0,  0,  0,  1,  1 }, /* uc9 : rxmode = 152 */
+    { 2, 32, 32,  1,  1,  32,  16,  16,  0,  0,  0,  0,  0,  0,  1 }, /* uc0 */
+    { 4,  6, 16,  1,  1,  32,  12,  12,  0,  0,  0,  0,  0,  0,  1 }, /* uc1 */
+    { 1, 64, 32,  1,  1,  16,  16,  16,  0,  0,  0,  0,  0,  0,  1 }, /* uc2 */
+    { 1, 64, 32,  1,  1,  16,  16,  16,  0,  0,  0,  0,  0,  0,  1 }, /* uc3 */
+    { 3,  8, 16,  1,  1,  32,  12,  12,  0,  0,  0,  0,  0,  0,  0 }, /* uc4 */
+    { 4,  6, 16,  1,  1,  32,  12,  12,  0,  0,  0,  0,  0,  0,  1 }, /* uc5 */
+    { 2, 32, 32,  1,  1,  32,  16,  16,  0,  0,  0,  0,  0,  0,  1 }, /* uc6 */
+    { 4,  8, 16,  1,  1,  32,  16,  16,  0,  0,  0,  0,  0,  0,  1 }, /* uc7 */
+    { 4, 48, 96,  1,  1,  16,  16,  16,  0,  0,  0,  0,  0,  0,  1 }, /* uc8 */
+    { 4,  4,  8,  1,  1,  32,  16,  16,  0,  0,  0,  0,  0,  1,  1 }, /* uc9 */
 };

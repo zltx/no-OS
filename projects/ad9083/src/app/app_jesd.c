@@ -72,7 +72,7 @@ int32_t app_jesd_init(uint8_t uc)
 		.name = "rx_jesd",
 		.base = RX_JESD_BASEADDR,
 		.octets_per_frame = jtx_param[uc].jesd_f,
-		.frames_per_multiframe = jtx_param[uc].jesd_n,
+		.frames_per_multiframe = jtx_param[uc].jesd_k,
 		.subclass = jtx_param[uc].jesd_subclass,
 		.device_clk_khz = 250000,	/* (lane_clk_khz / 40) */
 		.lane_clk_khz = 10000000,	/* LaneRate = ( M/L)*NP*(10/8)*DataRate */
@@ -86,7 +86,7 @@ int32_t app_jesd_init(uint8_t uc)
 		.cpll_enable = 0,
 		.lpm_enable = 1,
 		.lane_rate_khz = 10000000,	/* LaneRate = ( M/L)*NP*(10/8)*DataRate */
-		.ref_rate_khz = 250000,		/* FPGA_CLK ref */
+		.ref_rate_khz = clk_hz[uc][1]/1000,		/* FPGA_CLK ref */
 	};
 
 	status = axi_jesd204_rx_init(&rx_jesd, &rx_jesd_init);
