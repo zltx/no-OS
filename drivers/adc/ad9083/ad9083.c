@@ -48,6 +48,8 @@
 #include "error.h"
 #include <inttypes.h>
 #include "adi_ad9083_hal.h"
+#include "axi_jesd204_rx.h"
+#include "axi_adxcvr.h"
 
 extern uint64_t clk_hz[][3];
 extern uint32_t vmax[];
@@ -180,6 +182,10 @@ int32_t ad9083_reset_pin_ctrl(void *user_data, uint8_t enable)
 
 	return gpio_set_value(phy->gpio_reset, enable);
 }
+extern int32_t axi_jesd204_rx_lane_clk_enable(struct axi_jesd204_rx *jesd);
+extern int32_t adxcvr_clk_enable(struct adxcvr *xcvr);
+extern struct axi_jesd204_rx *rx_jesd;
+extern struct adxcvr *rx_adxcvr;
 
 static int32_t ad9083_setup(struct ad9083_phy *phy, uint8_t uc)
 {
@@ -206,9 +212,28 @@ static int32_t ad9083_setup(struct ad9083_phy *phy, uint8_t uc)
 	if (ret != 0)
 		return ret;
 
+
+
+
+
+
 	ret = adi_ad9083_jtx_startup(&phy->ad9083, &jtx_param[uc]);
 	if (ret != 0)
 		return ret;
+
+
+
+	ret = adxcvr_clk_enable(rx_adxcvr);
+	if (ret != SUCCESS) {
+		printf("error: %s: adxcvr_clk_enable() failed\n", rx_adxcvr->name);
+		return FAILURE;
+	}
+
+	ret = axi_jesd204_rx_lane_clk_enable(rx_jesd);
+	if (ret != SUCCESS) {
+		printf("error: %s: axi_jesd204_rx_lane_clk_enable() failed\n", rx_jesd->name);
+		return FAILURE;
+	}
 
 
 
