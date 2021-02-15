@@ -212,16 +212,9 @@ static int32_t ad9083_setup(struct ad9083_phy *phy, uint8_t uc)
 	if (ret != 0)
 		return ret;
 
-
-
-
-
-
 	ret = adi_ad9083_jtx_startup(&phy->ad9083, &jtx_param[uc]);
 	if (ret != 0)
 		return ret;
-
-
 
 	ret = adxcvr_clk_enable(rx_adxcvr);
 	if (ret != SUCCESS) {
@@ -234,23 +227,6 @@ static int32_t ad9083_setup(struct ad9083_phy *phy, uint8_t uc)
 		printf("error: %s: axi_jesd204_rx_lane_clk_enable() failed\n", rx_jesd->name);
 		return FAILURE;
 	}
-
-
-
-
-
-//	ret = adi_ad9083_rx_test_mode_res_set(&phy->ad9083, 16, 16);
-//	if (ret != 0)
-//				return ret;
-//
-//	ret = adi_ad9083_jesd_tx_phy_prbs_test(&phy->ad9083, PRBS7);
-//	if (ret != 0)
-//					return ret;
-//
-//	ret = adi_ad9083_rx_test_mode_enable_set(&phy->ad9083, 1);
-//	if (ret != 0)
-//			return ret;
-
 
 	return SUCCESS;
 }

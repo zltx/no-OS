@@ -187,11 +187,6 @@ int32_t app_clocking_init(uint8_t uc)
 	ad9528_param.gpio_resetb = NULL;
 	ad9528_param.gpio_ref_sel = &gpio_phy_ref_sel;
 
-
-	/** < Insert User System Clock(s) Initialization Code Here >
-	* System Clock should provide a device clock and SYSREF signal
-	* to the Talise device.
-	**/
 	status = ad9528_setup(&clkchip_device, ad9528_param);
 	if(status < 0) {
 		printf("error: ad9528_setup() failed with %d\n", status);
@@ -207,8 +202,8 @@ int32_t app_clocking_init(uint8_t uc)
 	ad9528_clk_set_rate(clkchip_device, FPGA_REF_CLK, fpga_ref_clk);
 	ad9528_clk_set_rate(clkchip_device, ADC_REF_CLK, dev_ref_clk);
 
-	ad9528_clk_set_rate(clkchip_device, FPGA_SYSREF_CLK, clk_hz[uc][1]/64);
-	ad9528_clk_set_rate(clkchip_device, ADC_SYSREF_CLK, clk_hz[uc][1]/64);
+	ad9528_clk_set_rate(clkchip_device, FPGA_SYSREF_CLK, clk_hz[uc][1] / 64);
+	ad9528_clk_set_rate(clkchip_device, ADC_SYSREF_CLK, clk_hz[uc][1] / 64);
 
 	return SUCCESS;
 

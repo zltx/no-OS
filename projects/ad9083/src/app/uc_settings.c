@@ -29,7 +29,6 @@ uint64_t clk_hz[][3] = {
     { (uint64_t)100e6,    (uint64_t)500e6,    (uint64_t)2000e6 }, /* uc6,  Lane Rate: 10Gbps */
     { (uint64_t)250e6,    (uint64_t)500e6,    (uint64_t)2000e6 }, /* uc7,  Lane Rate: 10Gbps */
     { (uint64_t)200e6,    (uint64_t)600e6,    (uint64_t)1600e6 }, /* uc8,  Lane Rate: 12Gbps */
-    { (uint64_t)250e6,    (uint64_t)250e6,    (uint64_t)2000e6 }, /* uc9,  Lane Rate: 10Gps */ //orig
 };
 
 /* Full scale valtage, unit: mv */
@@ -43,7 +42,6 @@ uint32_t vmax[] = {
     1800,     /* uc6 */
     1800,     /* uc7 */
     1800,     /* uc8 */
-    1800,     /* uc9 */
 };
 
 /* Cut-off frequency of low-pass filter */
@@ -57,7 +55,6 @@ uint32_t fc[] = {
     800e6,    /* uc6 */
     800e6,    /* uc7 */
     800e6,    /* uc8 */
-    800e6,    /* uc9 */
 };
 
 /* Termination resistor: 100Ohm, 200Ohm, open */
@@ -71,7 +68,6 @@ uint8_t rterm[] = {
     AD9083_ADC_TERM_RES_100,     /* uc6 */
     AD9083_ADC_TERM_RES_100,     /* uc7 */
     AD9083_ADC_TERM_RES_100,     /* uc8 */
-    AD9083_ADC_TERM_RES_100,     /* uc9 */
 };
 
 /* Enable/disable high perfermance */
@@ -85,7 +81,6 @@ uint32_t en_hp[] = {
     0,        /* uc6 */
     0,        /* uc7 */
     0,        /* uc8 */
-    0,        /* uc9 */
 };
 
 /* the backoff in terms of noiseterms of noise, 100 * dB */
@@ -99,7 +94,6 @@ uint32_t backoff[] = {
     100,      /* uc6 */
       0,      /* uc7 */
       0,      /* uc8 */
-      0,      /* uc9 */
 };
 
 /* max input */
@@ -113,7 +107,6 @@ uint32_t finmax[] = {
     100e6,    /* uc6 */
     100e6,    /* uc7 */
     100e6,    /* uc8 */
-    100e6,    /* uc9 */
 };
 
 uint64_t nco_freq_hz[][3] = {
@@ -127,7 +120,6 @@ uint64_t nco_freq_hz[][3] = {
     { 100e6,     0,        0 },   /* uc6 */
     { 0,         0,        0 },   /* uc7 */
     { 48e6,    51e6,     54e6 },  /* uc8 */
-    { 0,         0,        0 },   /* uc9 */
 };
 
 uint8_t decimation[][4] = {
@@ -140,9 +132,7 @@ uint8_t decimation[][4] = {
     {   AD9083_CIC_DEC_8,   AD9083_J_DEC_1,   0,  0 }, /* uc5 */
     {   AD9083_CIC_DEC_4,   AD9083_J_DEC_16,  0,  0 }, /* uc6 */
     {   AD9083_CIC_DEC_4,   AD9083_J_DEC_4,   0,  0 }, /* uc7 */
-//    {   AD9083_CIC_DEC_8,   AD9083_J_DEC_1,   0,  0 }, /* uc7 */
     {   AD9083_CIC_DEC_4,   AD9083_J_DEC_1,  16, 16 }, /* uc8 */
-    {   AD9083_CIC_DEC_4,   AD9083_J_DEC_8,   0,  0 }, /* uc9 */
 };
 
 uint8_t nco0_datapath_mode[] = {
@@ -155,7 +145,6 @@ uint8_t nco0_datapath_mode[] = {
     AD9083_DATAPATH_ADC_CIC_NCO_J,   /* uc6 */
     AD9083_DATAPATH_ADC_CIC_J,       /* uc7 */
     AD9083_DATAPATH_ADC_CIC_NCO_G_H, /* uc8 */
-    AD9083_DATAPATH_ADC_J,         /* uc9 */
 };
 
 uint8_t jtx_logiclane_mapping_pe_brd[4] = { 0, 1, 2, 3 };
@@ -171,5 +160,4 @@ adi_cms_jesd_param_t jtx_param[] = {
     { 2, 32, 32,  1,  1,  32,  16,  16,  0,  0,  0,  0,  0,  0,  1 }, /* uc6 */
     { 4,  8, 16,  1,  1,  32,  16,  16,  0,  0,  0,  0,  0,  0,  1 }, /* uc7 */
     { 4, 48, 96,  1,  1,  16,  16,  16,  0,  0,  0,  0,  0,  0,  1 }, /* uc8 */
-    { 4,  4,  8,  1,  1,  32,  16,  16,  0,  0,  0,  0,  0,  1,  1 }, /* uc9 */
 };
