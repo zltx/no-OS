@@ -43,13 +43,17 @@
 /***************************** Include Files **********************************/
 /******************************************************************************/
 #include <stdint.h>
+#include "iio_ad9083.h"
 #include "iio_axi_adc.h"
-
 /******************************************************************************/
 /************************ Functions Declarations ******************************/
 /******************************************************************************/
+struct app_iio_init{
+	struct iio_axi_adc_init_param *adc_init;
+	struct ad9083_phy *ad9083_phy;
+};
 
 /* @brief Application IIO setup. */
-int32_t iio_server_init(struct iio_axi_adc_init_param *adc_init);
+int32_t iio_server_init(struct app_iio_init *app_iio_init);
 
 #endif

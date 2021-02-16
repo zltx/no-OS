@@ -1,3 +1,4 @@
+#include <stdlib.h>
 #include "inttypes.h"
 #include "app_ad9083.h"
 #include "ad9083.h"
@@ -18,12 +19,10 @@ bool app_ad9083_check_sysref_rate(uint32_t lmfc, uint32_t sysref)
 	return mod <= div || mod >= sysref - div;
 }
 
-struct ad9083_phy *ad9083_phy;
-int32_t app_ad9083_init(uint8_t uc)
+int32_t app_ad9083_init(struct app_ad9083 **app, struct app_ad9083_init *init_param)
 {
-
 	int32_t status;
-
+	struct app_ad9083 *app_ad9083;
 	struct xil_spi_init_param xil_spi_param = {
 		.type = SPI_PS,
 		.device_id = 0,
@@ -57,12 +56,18 @@ int32_t app_ad9083_init(uint8_t uc)
 		.spi_init = &ad9083_spi_init_param,
 		.gpio_reset = &gpio_phy_resetb,
 		.gpio_pd = &gpio_phy_pd,
-		.uc = uc,
+		.uc = init_param->uc,
 	};
 
-	status = ad9083_init(&ad9083_phy, &ad9083_init_param);
+	app_ad9083 = (struct app_ad9083 *)calloc(1, sizeof(*app_ad9083));
+	if (!app_ad9083)
+		return FAILURE;
+
+	status = ad9083_init(&app_ad9083->ad9083_phy, &ad9083_init_param);
 	if (status != SUCCESS)
 		printf("ad9083_initialize() error: %" PRId32 "\n", status);
+
+	*app = app_ad9083;
 
 	return SUCCESS;
 }

@@ -48,6 +48,7 @@
 #include "parameters.h"
 #include "app_jesd.h"
 #include "adi_cms_api_common.h"
+#include "axi_jesd204_rx.h"
 /******************************************************************************/
 /************************ Variables Definitions *******************************/
 /******************************************************************************/
@@ -101,17 +102,10 @@ int32_t app_jesd_init(uint8_t uc)
 		return FAILURE;
 	}
 
-//	status = adxcvr_clk_enable(rx_adxcvr);
-//	if (status != SUCCESS) {
-//		printf("error: %s: adxcvr_clk_enable() failed\n", rx_adxcvr->name);
-//		return FAILURE;
-//	}
-
-//	status = axi_jesd204_rx_lane_clk_enable(rx_jesd);
-//	if (status != SUCCESS) {
-//		printf("error: %s: axi_jesd204_rx_lane_clk_enable() failed\n", rx_jesd->name);
-//		return FAILURE;
-//	}
-
 	return SUCCESS;
+}
+
+uint32_t jesd_status(void)
+{
+	return axi_jesd204_rx_status_read(rx_jesd);
 }

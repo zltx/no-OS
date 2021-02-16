@@ -54,7 +54,9 @@
 
 // hal
 #include "parameters.h"
-//#include "adi_hal.h"
+
+// devices
+#include "app_ad9083.h"
 
 // header
 #include "app_clocking.h"
@@ -66,18 +68,14 @@
 #define ADC_REF_CLK	13
 
 struct ad9528_dev *clkchip_device;
-struct axi_clkgen *rx_clkgen;
-struct axi_clkgen *tx_clkgen;
-struct axi_clkgen *rx_os_clkgen;
 extern uint64_t clk_hz[][3];
 
 int32_t app_clocking_init(uint8_t uc, uint32_t lmfc_rate_hz)
 {
-	int32_t status;
 	uint64_t dev_ref_clk, fpga_ref_clk, fpga_glb_clk;
-	uint32_t rate_dev;
+	uint32_t sys_ref_rate;
 	uint16_t n;
-	int ret;
+	int32_t ret;
 
 	struct ad9528_channel_spec ad9528_channels[14];
 	struct ad9528_init_param ad9528_param;
@@ -98,14 +96,14 @@ int32_t app_clocking_init(uint8_t uc, uint32_t lmfc_rate_hz)
 	ad9528_param.pdata->num_channels = 14;
 	ad9528_param.pdata->channels = &ad9528_channels[0];
 
-	status = ad9528_init(&ad9528_param);
-	if(status) {
-		printf("error: ad9528_init() failed with %d\n", status);
+	ret = ad9528_init(&ad9528_param);
+	if(ret) {
+		printf("error: ad9528_init() failed with %d\n", ret);
 		goto error_0;
 	}
 
 	// ad9528 channel defaults
-	for(unsigned int ch = 0; ch < ad9528_param.pdata->num_channels; ch++) {
+	for(uint8_t ch = 0; ch < ad9528_param.pdata->num_channels; ch++) {
 		ad9528_channels[ch].channel_num = ch;
 		ad9528_channels[ch].output_dis = 1;
 	}
@@ -113,34 +111,34 @@ int32_t app_clocking_init(uint8_t uc, uint32_t lmfc_rate_hz)
 	// ad9528 channel specifics
 
 	// SYSREF to FPGA
-	ad9528_channels[0].output_dis = 0;
-	ad9528_channels[0].driver_mode = DRIVER_MODE_LVDS;
-	ad9528_channels[0].divider_phase = 0;
-	ad9528_channels[0].signal_source = SOURCE_SYSREF_VCO;
+	ad9528_channels[FPGA_SYSREF_CLK].output_dis = 0;
+	ad9528_channels[FPGA_SYSREF_CLK].driver_mode = DRIVER_MODE_LVDS;
+	ad9528_channels[FPGA_SYSREF_CLK].divider_phase = 0;
+	ad9528_channels[FPGA_SYSREF_CLK].signal_source = SOURCE_SYSREF_VCO;
 
 	// GLBLCLK to FPGA
-	ad9528_channels[1].output_dis = 0;
-	ad9528_channels[1].driver_mode = DRIVER_MODE_LVDS;
-	ad9528_channels[1].divider_phase = 0;
-	ad9528_channels[1].signal_source = SOURCE_VCO;
+	ad9528_channels[FPGA_GLBL_CLK].output_dis = 0;
+	ad9528_channels[FPGA_GLBL_CLK].driver_mode = DRIVER_MODE_LVDS;
+	ad9528_channels[FPGA_GLBL_CLK].divider_phase = 0;
+	ad9528_channels[FPGA_GLBL_CLK].signal_source = SOURCE_VCO;
 
 	// REFCLK to FPGA
-	ad9528_channels[3].output_dis = 0;
-	ad9528_channels[3].driver_mode = DRIVER_MODE_LVDS;
-	ad9528_channels[3].divider_phase = 0;
-	ad9528_channels[3].signal_source = SOURCE_VCO;
+	ad9528_channels[FPGA_REF_CLK].output_dis = 0;
+	ad9528_channels[FPGA_REF_CLK].driver_mode = DRIVER_MODE_LVDS;
+	ad9528_channels[FPGA_REF_CLK].divider_phase = 0;
+	ad9528_channels[FPGA_REF_CLK].signal_source = SOURCE_VCO;
 
 	// SYSREF to ADC
-	ad9528_channels[12].output_dis = 0;
-	ad9528_channels[12].driver_mode = DRIVER_MODE_LVDS;
-	ad9528_channels[12].divider_phase = 0;
-	ad9528_channels[12].signal_source = SOURCE_SYSREF_VCO;
+	ad9528_channels[ADC_SYSREF_CLK].output_dis = 0;
+	ad9528_channels[ADC_SYSREF_CLK].driver_mode = DRIVER_MODE_LVDS;
+	ad9528_channels[ADC_SYSREF_CLK].divider_phase = 0;
+	ad9528_channels[ADC_SYSREF_CLK].signal_source = SOURCE_SYSREF_VCO;
 
 	// ADC CLK reference, used for ADC sample clock and JESD
-	ad9528_channels[13].output_dis = 0;
-	ad9528_channels[13].driver_mode = DRIVER_MODE_LVDS;
-	ad9528_channels[13].divider_phase = 0;
-	ad9528_channels[13].signal_source = SOURCE_VCO;
+	ad9528_channels[ADC_REF_CLK].output_dis = 0;
+	ad9528_channels[ADC_REF_CLK].driver_mode = DRIVER_MODE_LVDS;
+	ad9528_channels[ADC_REF_CLK].divider_phase = 0;
+	ad9528_channels[ADC_REF_CLK].signal_source = SOURCE_VCO;
 
 	// ad9528 settings
 	ad9528_param.pdata->spi3wire = 1;
@@ -175,7 +173,7 @@ int32_t app_clocking_init(uint8_t uc, uint32_t lmfc_rate_hz)
 		.device_id = 0,
 	};
 
-	// clock chip spi settings
+	/* clock chip spi settings */
 	struct spi_init_param clkchip_spi_init_param = {
 		.max_speed_hz = 10000000,
 		.mode = SPI_MODE_0,
@@ -185,14 +183,13 @@ int32_t app_clocking_init(uint8_t uc, uint32_t lmfc_rate_hz)
 	};
 
 	ad9528_param.spi_init = clkchip_spi_init_param;
-
 	/* Reset pin is tied up to P3V3_CLK_PLL trough a pull up resistor */
 	ad9528_param.gpio_resetb = NULL;
 	ad9528_param.gpio_ref_sel = &gpio_phy_ref_sel;
 
-	status = ad9528_setup(&clkchip_device, ad9528_param);
-	if(status < 0) {
-		printf("error: ad9528_setup() failed with %d\n", status);
+	ret = ad9528_setup(&clkchip_device, ad9528_param);
+	if(ret < 0) {
+		printf("error: ad9528_setup() failed with %d\n", ret);
 		goto error_1;
 	}
 
@@ -200,16 +197,20 @@ int32_t app_clocking_init(uint8_t uc, uint32_t lmfc_rate_hz)
 	fpga_ref_clk = ad9528_clk_round_rate(clkchip_device, FPGA_REF_CLK, clk_hz[uc][1]);
 	dev_ref_clk = ad9528_clk_round_rate(clkchip_device, ADC_REF_CLK, clk_hz[uc][0]);
 
+	ret = ad9528_clk_set_rate(clkchip_device, FPGA_GLBL_CLK, fpga_glb_clk);
+	if(ret < 0)
+		goto error_1;
 
-	ad9528_clk_set_rate(clkchip_device, FPGA_GLBL_CLK, fpga_glb_clk);
-	ad9528_clk_set_rate(clkchip_device, FPGA_REF_CLK, fpga_ref_clk);
-	ad9528_clk_set_rate(clkchip_device, ADC_REF_CLK, dev_ref_clk);
-	// F_SYSREF = LANERATE / (10 * K * F * N) N- anny integer
-	// https://ez.analog.com/fpga/f/q-a/101204/sysref-problem-when-using-ad9371-board-and-zynq-ultrascale-zcu102
+	ret = ad9528_clk_set_rate(clkchip_device, FPGA_REF_CLK, fpga_ref_clk);
+	if(ret < 0)
+		goto error_1;
+	ret = ad9528_clk_set_rate(clkchip_device, ADC_REF_CLK, dev_ref_clk);
+	if(ret < 0)
+		goto error_1;
 
 	for (n = 64; n > 0; n--) {
-		rate_dev = ad9528_clk_round_rate(clkchip_device, FPGA_SYSREF_CLK, lmfc_rate_hz / n);
-		if (app_ad9083_check_sysref_rate(lmfc_rate_hz, rate_dev))
+		sys_ref_rate = ad9528_clk_round_rate(clkchip_device, FPGA_SYSREF_CLK, lmfc_rate_hz / n);
+		if (app_ad9083_check_sysref_rate(lmfc_rate_hz, sys_ref_rate))
 			break;
 
 		if (n == 0) {
@@ -218,8 +219,13 @@ int32_t app_clocking_init(uint8_t uc, uint32_t lmfc_rate_hz)
 		}
 	}
 
-	ad9528_clk_set_rate(clkchip_device, FPGA_SYSREF_CLK, rate_dev);
-	ad9528_clk_set_rate(clkchip_device, ADC_SYSREF_CLK, rate_dev);
+	ret = ad9528_clk_set_rate(clkchip_device, FPGA_SYSREF_CLK, sys_ref_rate);
+	if(ret < 0)
+		goto error_1;
+
+	ret = ad9528_clk_set_rate(clkchip_device, ADC_SYSREF_CLK, sys_ref_rate);
+	if(ret < 0)
+		goto error_1;
 
 	return SUCCESS;
 

@@ -215,7 +215,7 @@ struct iio_demo_init_param iio_demo_in_init_par = {
  * @param desc - Descriptor.
  * @param dev_descriptor - iio device descriptor.
  */
-void iio_demo_get_dev_descriptor(struct iio_device **dev_descriptor)
+void iio_ad9083_get_dev_descriptor(struct iio_device **dev_descriptor)
 {
 	*dev_descriptor = &iio_demo_dev_in_descriptor;
 }

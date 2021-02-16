@@ -88,6 +88,9 @@ struct iio_demo_init_param {
 /************************ Functions Declarations ******************************/
 /******************************************************************************/
 
+/** Get device descriptor. */
+void iio_ad9083_get_dev_descriptor(struct iio_device **dev_descriptor);
+
 ssize_t get_demo_attr(void *device, char *buf, size_t len,
 		      const struct iio_ch_info *channel, intptr_t priv);
 ssize_t set_demo_attr(void *device, char *buf, size_t len,

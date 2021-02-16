@@ -41,10 +41,10 @@
 
 #include <stdint.h>
 
+/* @brief Application clocking setup. */
 int32_t app_clocking_init(uint8_t uc, uint32_t lmfc_rate_hz);
 
+/* @brief Application clocking deinit. */
 void app_clocking_deinit(void);
-
-extern struct ad9528_dev* ad9528_device;
 
 #endif /* __APP_CLOCKING_H */

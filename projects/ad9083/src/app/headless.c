@@ -66,7 +66,6 @@
 #endif
 #endif
 extern struct axi_jesd204_rx *rx_jesd;
-struct ad9083_phy *ad9083_phy;
 int main(void)
 {
 	uint8_t uc = 7;
@@ -99,19 +98,24 @@ int main(void)
 
 		return FAILURE;
 	}
-	status = app_ad9083_init(uc);
+
+	struct app_ad9083 *app_ad9083;
+	struct app_ad9083_init init_param = {
+		.uc = uc,
+	};
+	status = app_ad9083_init(&app_ad9083, &init_param);
 	if (status != SUCCESS) {
 		printf("app_clock_init() error: %" PRId32 "\n", status);
 
 		return FAILURE;
 	}
-	status = axi_jesd204_rx_status_read(rx_jesd);
+	status = jesd_status();
 	if (status != SUCCESS) {
-		printf("axi_jesd204_tx_status_read() error: %"PRIi32"\n", status);
+		printf("jesd_status() error: %"PRIi32"\n", status);
 	}
 
 	axi_adc_init(&rx_adc, &rx_adc_init);
-	status = adi_ad9083_jesd_tx_link_status_get(&ad9083_phy->ad9083, &status1);
+	status = adi_ad9083_jesd_tx_link_status_get(&app_ad9083->ad9083_phy->ad9083, &status1);
 	if (status != SUCCESS)
 		return FAILURE;
 
@@ -126,7 +130,11 @@ int main(void)
 		.dcache_invalidate_range = (void (*)(uint32_t, uint32_t))Xil_DCacheInvalidateRange,
 	};
 
-	return iio_server_init(&iio_axi_adc_init_par);
+	struct app_iio_init app_iio_init = {
+			.adc_init = &iio_axi_adc_init_par,
+			.ad9083_phy = app_ad9083->ad9083_phy,
+	};
+	return iio_server_init(&app_iio_init);
 #else
 	printf("Bye\n");
 
