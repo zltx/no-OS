@@ -105,7 +105,7 @@ int32_t app_jesd_init(uint8_t uc)
 	return SUCCESS;
 }
 
-uint32_t jesd_status(void)
+uint32_t app_jesd_status(void)
 {
 	return axi_jesd204_rx_status_read(rx_jesd);
 }

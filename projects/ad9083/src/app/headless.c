@@ -68,30 +68,44 @@
 extern struct axi_jesd204_rx *rx_jesd;
 int main(void)
 {
+	/* select configuration from uc_settings */
 	uint8_t uc = 7;
 	int32_t status;
-	uint16_t status1;
+	struct axi_adc *rx_adc;
+	struct axi_dmac *rx_dmac;
+
 	struct axi_adc_init rx_adc_init = {
 		.name = "rx_adc",
 		.base = RX_CORE_BASEADDR,
 		.num_channels = 16,
 	};
-	struct axi_adc *rx_adc;
-
 	struct axi_dmac_init rx_dmac_init = {
 		"rx_dmac",
 		RX_DMA_BASEADDR,
 		DMA_DEV_TO_MEM,
 		0
 	};
-	struct axi_dmac *rx_dmac;
+
+	struct app_ad9083 *app_ad9083;
+	struct app_ad9083_init app_ad9083_init_param = {
+		.uc = uc,
+	};
+
+	struct app_clocing *app_clocking;
+	struct app_clocking_init app_clocking_init_param = {
+		.lmfc_rate_hz = 3906250,
+		.uc = uc,
+	};
+
 	printf("Hello\n");
-	status = app_clocking_init(uc, 3906250);
+
+	status = app_clocking_init(&app_clocking, &app_clocking_init_param);
 	if (status != SUCCESS) {
 		printf("app_clock_init() error: %" PRId32 "\n", status);
 
 		return FAILURE;
 	}
+
 	status = app_jesd_init(uc);
 	if (status != SUCCESS) {
 		printf("app_jesd_init() error: %" PRId32 "\n", status);
@@ -99,27 +113,34 @@ int main(void)
 		return FAILURE;
 	}
 
-	struct app_ad9083 *app_ad9083;
-	struct app_ad9083_init init_param = {
-		.uc = uc,
-	};
-	status = app_ad9083_init(&app_ad9083, &init_param);
+	status = app_ad9083_init(&app_ad9083, &app_ad9083_init_param);
 	if (status != SUCCESS) {
 		printf("app_clock_init() error: %" PRId32 "\n", status);
 
 		return FAILURE;
 	}
-	status = jesd_status();
+	status = app_jesd_status();
 	if (status != SUCCESS) {
 		printf("jesd_status() error: %"PRIi32"\n", status);
+
+		return FAILURE;
 	}
 
-	axi_adc_init(&rx_adc, &rx_adc_init);
-	status = adi_ad9083_jesd_tx_link_status_get(&app_ad9083->ad9083_phy->ad9083, &status1);
+	status = app_ad9083_status(app_ad9083);
+	if (status != SUCCESS) {
+		printf("app_ad9083_status() error: %"PRIi32"\n", status);
+
+		return FAILURE;
+	}
+
+	status = axi_adc_init(&rx_adc, &rx_adc_init);
+	if (status != SUCCESS)
+		return FAILURE;
+	
+	status = axi_dmac_init(&rx_dmac, &rx_dmac_init);
 	if (status != SUCCESS)
 		return FAILURE;
 
-	axi_dmac_init(&rx_dmac, &rx_dmac_init);
 #ifdef IIO_SUPPORT
 	printf("The board accepts libiio clients connections through the serial backend.\n");
 
@@ -134,6 +155,7 @@ int main(void)
 			.adc_init = &iio_axi_adc_init_par,
 			.ad9083_phy = app_ad9083->ad9083_phy,
 	};
+
 	return iio_server_init(&app_iio_init);
 #else
 	printf("Bye\n");

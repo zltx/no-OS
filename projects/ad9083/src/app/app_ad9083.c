@@ -19,6 +19,25 @@ bool app_ad9083_check_sysref_rate(uint32_t lmfc, uint32_t sysref)
 	return mod <= div || mod >= sysref - div;
 }
 
+int32_t app_ad9083_status(struct app_ad9083 *app)
+{
+
+	int32_t ret;
+	uint16_t status;
+
+	ret = adi_ad9083_jesd_tx_link_status_get(&app->ad9083_phy->ad9083, &status);
+	if (ret != SUCCESS)
+		return FAILURE;
+
+	if (status != 0x7d)
+		return FAILURE;
+	
+	if (status != 0x3d)
+		return FAILURE;
+
+	return SUCCESS;
+}
+
 int32_t app_ad9083_init(struct app_ad9083 **app, struct app_ad9083_init *init_param)
 {
 	int32_t status;

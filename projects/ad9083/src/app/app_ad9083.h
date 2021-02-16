@@ -16,5 +16,6 @@ struct app_ad9083{
 int32_t app_ad9083_init(struct app_ad9083 **app, struct app_ad9083_init *init_param);
 
 bool app_ad9083_check_sysref_rate(uint32_t lmfc, uint32_t sysref);
+int32_t app_ad9083_status(struct app_ad9083 *app);
 
 #endif /* __APP_AD9083_H */
