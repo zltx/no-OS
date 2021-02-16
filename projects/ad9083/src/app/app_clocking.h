@@ -41,7 +41,7 @@
 
 #include <stdint.h>
 
-int32_t app_clocking_init(uint8_t uc);
+int32_t app_clocking_init(uint8_t uc, uint32_t lmfc_rate_hz);
 
 void app_clocking_deinit(void);
 

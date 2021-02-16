@@ -86,29 +86,25 @@ int main(void)
 		0
 	};
 	struct axi_dmac *rx_dmac;
-	mdelay(1000);
 	printf("Hello\n");
-	status = app_clocking_init(uc);
+	status = app_clocking_init(uc, 3906250);
 	if (status != SUCCESS) {
 		printf("app_clock_init() error: %" PRId32 "\n", status);
 
 		return FAILURE;
 	}
-	mdelay(1000);
 	status = app_jesd_init(uc);
 	if (status != SUCCESS) {
 		printf("app_jesd_init() error: %" PRId32 "\n", status);
 
 		return FAILURE;
 	}
-	mdelay(1000);
 	status = app_ad9083_init(uc);
 	if (status != SUCCESS) {
 		printf("app_clock_init() error: %" PRId32 "\n", status);
 
 		return FAILURE;
 	}
-	mdelay(1000);
 	status = axi_jesd204_rx_status_read(rx_jesd);
 	if (status != SUCCESS) {
 		printf("axi_jesd204_tx_status_read() error: %"PRIi32"\n", status);
