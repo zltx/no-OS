@@ -66,6 +66,7 @@ extern int32_t adi_ad9083_jtx_startup(adi_ad9083_device_t *device,
 #define CHIPID_AD9083	0x00EA
 #define CHIPID_MASK	0xFFFF
 #define SPI_IN_OUT_BUFF_SZ   0x3
+
 int32_t adi_ad9083_reg_get(struct ad9083_phy *device , uint32_t reg, uint8_t *readval)
 {
 	int32_t ret = 0;

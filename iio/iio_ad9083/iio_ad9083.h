@@ -1,10 +1,9 @@
 /***************************************************************************//**
-*   @file   demo_dev.h
-*   @brief  Header file of iio_demo
+*   @file   iio_ad9083.h
+*   @brief  Header file of iio_ad9083
 *   @author Cristian Pop (cristian.pop@analog.com)
-*   @author Mihail Chindris (mihail.chindris@analog.com)
 ********************************************************************************
-* Copyright 2019(c) Analog Devices, Inc.
+* Copyright 2020(c) Analog Devices, Inc.
 *
 * All rights reserved.
 *
@@ -38,8 +37,8 @@
 * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 *******************************************************************************/
 
-#ifndef IIO_DEMO_H_
-#define IIO_DEMO_H_
+#ifndef IIO_AD9083_H_
+#define IIO_AD9083_H_
 
 /******************************************************************************/
 /***************************** Include Files **********************************/
@@ -52,36 +51,20 @@
 /*************************** Types Declarations *******************************/
 /******************************************************************************/
 
-#define DEMO_NUM_CHANNELS	2
-#define MAX_REG_ADDR		10
-#define NB_LOCAL_SAMPLES	500
-
+#define AD9083_NUM_CHANNELS	2
 /**
- * @struct iio_demo_desc
+ * @struct iio_ad9083_desc
  * @brief Desciptor.
  */
-struct iio_demo_desc {
-	/** Dummy registers of device for testing direct_reg_access attribute */
-	uint32_t dummy_regs[MAX_REG_ADDR];
-	/** Active reg	 */
-	uint32_t active_reg_addr;
-	/** Demo global device attribute */
-	uint32_t dev_global_attr;
-	/** Demo device channel attribute */
-	uint32_t dev_ch_attr;
-	/** Active channels */
-	uint32_t ch_mask;
+struct iio_ad9083_desc {
 };
 
 /**
- * @struct iio_demo_init_param
- * @brief iio demo configuration.
+ * @struct iio_ad9083_init_param
+ * @brief iio ad9083 configuration.
  */
-struct iio_demo_init_param {
-	/** Demo global device attribute */
-	uint32_t dev_global_attr;
-	/** Demo device channel attribute */
-	uint32_t dev_ch_attr;
+struct iio_ad9083_init_param {
+
 };
 
 /******************************************************************************/
@@ -91,25 +74,10 @@ struct iio_demo_init_param {
 /** Get device descriptor. */
 void iio_ad9083_get_dev_descriptor(struct iio_device **dev_descriptor);
 
-ssize_t get_demo_attr(void *device, char *buf, size_t len,
-		      const struct iio_ch_info *channel, intptr_t priv);
-ssize_t set_demo_attr(void *device, char *buf, size_t len,
-		      const struct iio_ch_info *channel, intptr_t priv);
-
-int32_t iio_demo_reg_read(struct iio_demo_desc *desc, uint32_t reg,
-			  uint32_t *readval);
-int32_t iio_demo_reg_write(struct iio_demo_desc *desc, uint32_t reg,
-			   uint32_t writeval);
-
-int32_t	iio_demo_read_local_samples(void *dev, uint16_t *buff,
-				    uint32_t samples);
-int32_t	iio_demo_write_local_samples(void *dev, uint16_t *buff,
-				     uint32_t samples);
-
 /* Init function. */
-int32_t iio_demo_dev_init(struct iio_demo_desc **desc,
-			  struct iio_demo_init_param *param);
-/* Free the resources allocated by iio_demo_init(). */
-int32_t iio_demo_dev_remove(struct iio_demo_desc *desc);
+int32_t iio_ad9083_dev_init(struct iio_ad9083_desc **desc,
+			  struct iio_ad9083_init_param *param);
+/* Free the resources allocated by iio_ad9083_init(). */
+int32_t iio_ad9083_dev_remove(struct iio_ad9083_desc *desc);
 
-#endif /* IIO_DEMO_H_ */
+#endif /* IIO_AD9083_H_ */
