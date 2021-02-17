@@ -82,6 +82,7 @@ struct ad9083_init_param {
 	/* GPIO power down */
 	gpio_init_param	*gpio_pd;
 	uint8_t uc;
+	struct clk *jesd_rx_clk;
 };
 
 /******************************************************************************/

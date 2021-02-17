@@ -44,11 +44,18 @@
 /******************************************************************************/
 #include <stdint.h>
 #include "clk.h"
+#include "jesd204_clk.h"
 
-enum jesd_clocks {
-	JESD_RX,
-	JESD_TX,
-	NUM_JESD_CLKS
+struct app_jesd_init{
+	uint8_t uc;
+};
+
+struct app_jesd{
+	struct axi_jesd204_rx *rx_jesd;
+	struct adxcvr *rx_adxcvr;
+	struct jesd204_clk rx_jesd_clk;
+	struct clk_hw jesd_rx_hw;
+	struct clk jesd_rx_clk;
 };
 
 /******************************************************************************/
@@ -56,8 +63,11 @@ enum jesd_clocks {
 /******************************************************************************/
 
 /* @brief Application JESD initialization. */
-int32_t app_jesd_init(uint8_t uc);
+int32_t app_jesd_init(struct app_jesd **app, struct app_jesd_init *init_param);
 
-uint32_t app_jesd_status(void);
+/* @brief Application JESD deinit. */
+void app_jesd_deinit(struct app_jesd *app);
+
+uint32_t app_jesd_status(struct app_jesd *app);
 
 #endif

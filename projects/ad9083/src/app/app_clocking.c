@@ -70,9 +70,9 @@
 
 extern uint64_t clk_hz[][3];
 
-int32_t app_clocking_init(struct app_clocing **app, struct app_clocking_init *init_param)
+int32_t app_clocking_init(struct app_clocking **app, struct app_clocking_init *init_param)
 {
-	struct app_clocing *app_clocing;
+	struct app_clocking *app_clocking;
 	uint64_t dev_ref_clk, fpga_ref_clk, fpga_glb_clk;
 	uint32_t sys_ref_rate;
 	uint16_t n;
@@ -93,8 +93,8 @@ int32_t app_clocking_init(struct app_clocing **app, struct app_clocking_init *in
 		.extra = &xil_gpio_param
 	};
 
-	app_clocing = (struct app_clocing *)calloc(1, sizeof(*app_clocing));
-	if (!app_clocing)
+	app_clocking = (struct app_clocking *)calloc(1, sizeof(*app_clocking));
+	if (!app_clocking)
 		return FAILURE;
 
 	// ad9528 defaults
@@ -193,29 +193,29 @@ int32_t app_clocking_init(struct app_clocing **app, struct app_clocking_init *in
 	ad9528_param.gpio_resetb = NULL;
 	ad9528_param.gpio_ref_sel = &gpio_phy_ref_sel;
 
-	ret = ad9528_setup(&app_clocing->clkchip_device, ad9528_param);
+	ret = ad9528_setup(&app_clocking->clkchip_device, ad9528_param);
 	if(ret < 0) {
 		printf("error: ad9528_setup() failed with %d\n", ret);
 		goto error_1;
 	}
 
-	fpga_glb_clk = ad9528_clk_round_rate(app_clocing->clkchip_device, FPGA_GLBL_CLK, clk_hz[uc][1] / 4);
-	fpga_ref_clk = ad9528_clk_round_rate(app_clocing->clkchip_device, FPGA_REF_CLK, clk_hz[uc][1]);
-	dev_ref_clk = ad9528_clk_round_rate(app_clocing->clkchip_device, ADC_REF_CLK, clk_hz[uc][0]);
+	fpga_glb_clk = ad9528_clk_round_rate(app_clocking->clkchip_device, FPGA_GLBL_CLK, clk_hz[uc][1] / 4);
+	fpga_ref_clk = ad9528_clk_round_rate(app_clocking->clkchip_device, FPGA_REF_CLK, clk_hz[uc][1]);
+	dev_ref_clk = ad9528_clk_round_rate(app_clocking->clkchip_device, ADC_REF_CLK, clk_hz[uc][0]);
 
-	ret = ad9528_clk_set_rate(app_clocing->clkchip_device, FPGA_GLBL_CLK, fpga_glb_clk);
+	ret = ad9528_clk_set_rate(app_clocking->clkchip_device, FPGA_GLBL_CLK, fpga_glb_clk);
 	if(ret < 0)
 		goto error_1;
 
-	ret = ad9528_clk_set_rate(app_clocing->clkchip_device, FPGA_REF_CLK, fpga_ref_clk);
+	ret = ad9528_clk_set_rate(app_clocking->clkchip_device, FPGA_REF_CLK, fpga_ref_clk);
 	if(ret < 0)
 		goto error_1;
-	ret = ad9528_clk_set_rate(app_clocing->clkchip_device, ADC_REF_CLK, dev_ref_clk);
+	ret = ad9528_clk_set_rate(app_clocking->clkchip_device, ADC_REF_CLK, dev_ref_clk);
 	if(ret < 0)
 		goto error_1;
 
 	for (n = 64; n > 0; n--) {
-		sys_ref_rate = ad9528_clk_round_rate(app_clocing->clkchip_device, FPGA_SYSREF_CLK, init_param->lmfc_rate_hz / n);
+		sys_ref_rate = ad9528_clk_round_rate(app_clocking->clkchip_device, FPGA_SYSREF_CLK, init_param->lmfc_rate_hz / n);
 		if (app_ad9083_check_sysref_rate(init_param->lmfc_rate_hz, sys_ref_rate))
 			break;
 
@@ -225,23 +225,25 @@ int32_t app_clocking_init(struct app_clocing **app, struct app_clocking_init *in
 		}
 	}
 
-	ret = ad9528_clk_set_rate(app_clocing->clkchip_device, FPGA_SYSREF_CLK, sys_ref_rate);
+	ret = ad9528_clk_set_rate(app_clocking->clkchip_device, FPGA_SYSREF_CLK, sys_ref_rate);
 	if(ret < 0)
 		goto error_1;
 
-	ret = ad9528_clk_set_rate(app_clocing->clkchip_device, ADC_SYSREF_CLK, sys_ref_rate);
+	ret = ad9528_clk_set_rate(app_clocking->clkchip_device, ADC_SYSREF_CLK, sys_ref_rate);
 	if(ret < 0)
 		goto error_1;
+	*app = app_clocking;
+
 
 	return SUCCESS;
 
 error_1:
-	ad9528_remove(app_clocing->clkchip_device);
+	ad9528_remove(app_clocking->clkchip_device);
 error_0:
 	return FAILURE;
 }
 
-void app_clocking_deinit(struct app_clocing *app)
+void app_clocking_deinit(struct app_clocking *app)
 {
 	ad9528_remove(app->clkchip_device);
 }

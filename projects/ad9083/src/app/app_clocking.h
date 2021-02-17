@@ -47,14 +47,14 @@ struct app_clocking_init{
 	uint32_t lmfc_rate_hz;
 };
 
-struct app_clocing{
+struct app_clocking{
 	struct ad9528_dev *clkchip_device;
 };
 
 /* @brief Application clocking setup. */
-int32_t app_clocking_init(struct app_clocing **app, struct app_clocking_init *init_param);
+int32_t app_clocking_init(struct app_clocking **app, struct app_clocking_init *init_param);
 
 /* @brief Application clocking deinit. */
-void app_clocking_deinit(struct app_clocing *app);
+void app_clocking_deinit(struct app_clocking *app);
 
 #endif /* __APP_CLOCKING_H */

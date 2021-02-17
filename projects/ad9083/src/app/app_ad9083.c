@@ -29,10 +29,7 @@ int32_t app_ad9083_status(struct app_ad9083 *app)
 	if (ret != SUCCESS)
 		return FAILURE;
 
-	if (status != 0x7d)
-		return FAILURE;
-	
-	if (status != 0x3d)
+	if (status != 0x7d && status != 0x3d)
 		return FAILURE;
 
 	return SUCCESS;
@@ -76,6 +73,7 @@ int32_t app_ad9083_init(struct app_ad9083 **app, struct app_ad9083_init *init_pa
 		.gpio_reset = &gpio_phy_resetb,
 		.gpio_pd = &gpio_phy_pd,
 		.uc = init_param->uc,
+		.jesd_rx_clk = init_param->jesd_rx_clk,
 	};
 
 	app_ad9083 = (struct app_ad9083 *)calloc(1, sizeof(*app_ad9083));

@@ -40,7 +40,7 @@
 /******************************************************************************/
 /***************************** Include Files **********************************/
 /******************************************************************************/
-
+#include <stdlib.h>
 #include "axi_jesd204_rx.h"
 #include "axi_adxcvr.h"
 #include "jesd204_clk.h"
@@ -52,8 +52,6 @@
 /******************************************************************************/
 /************************ Variables Definitions *******************************/
 /******************************************************************************/
-struct axi_jesd204_rx *rx_jesd;
-struct adxcvr *rx_adxcvr;
 
 extern adi_cms_jesd_param_t jtx_param[];
 extern uint64_t clk_hz[][3];
@@ -65,9 +63,15 @@ extern uint64_t clk_hz[][3];
  * @brief Application JESD setup.
  * @return SUCCESS in case of success, FAILURE otherwise.
  */
-int32_t app_jesd_init(uint8_t uc)
+int32_t app_jesd_init(struct app_jesd **app, struct app_jesd_init *init_param)
 {
 	int32_t status;
+	struct app_jesd *app_jesd;
+	uint8_t uc = init_param->uc;
+
+	app_jesd = (struct app_jesd *)calloc(1, sizeof(*app_jesd));
+	if (!app_jesd)
+		return FAILURE;
 
 	struct jesd204_rx_init rx_jesd_init = {
 		.name = "rx_jesd",
@@ -90,22 +94,33 @@ int32_t app_jesd_init(uint8_t uc)
 		.ref_rate_khz = clk_hz[uc][1]/1000,		/* FPGA_CLK ref */
 	};
 
-	status = axi_jesd204_rx_init(&rx_jesd, &rx_jesd_init);
+	status = axi_jesd204_rx_init(&app_jesd->rx_jesd, &rx_jesd_init);
 	if (status != SUCCESS) {
 		printf("error: %s: axi_jesd204_rx_init() failed\n", rx_jesd_init.name);
 		return FAILURE;
 	}
 
-	status = adxcvr_init(&rx_adxcvr, &rx_adxcvr_init);
+	status = adxcvr_init(&app_jesd->rx_adxcvr, &rx_adxcvr_init);
 	if (status != SUCCESS) {
 		printf("error: %s: adxcvr_init() failed\n", rx_adxcvr_init.name);
 		return FAILURE;
 	}
 
+	app_jesd->rx_jesd_clk.xcvr = app_jesd->rx_adxcvr;
+	app_jesd->rx_jesd_clk.jesd_rx = app_jesd->rx_jesd;
+	app_jesd->jesd_rx_hw.dev = &app_jesd->rx_jesd_clk;
+	app_jesd->jesd_rx_hw.dev_clk_enable = jesd204_clk_enable;
+	app_jesd->jesd_rx_hw.dev_clk_disable = jesd204_clk_disable;
+	app_jesd->jesd_rx_hw.dev_clk_set_rate = jesd204_clk_set_rate;
+	app_jesd->jesd_rx_clk.name = "jesd_rx";
+	app_jesd->jesd_rx_clk.hw = &app_jesd->jesd_rx_hw;
+
+	*app = app_jesd;
+
 	return SUCCESS;
 }
 
-uint32_t app_jesd_status(void)
+uint32_t app_jesd_status(struct app_jesd *app)
 {
-	return axi_jesd204_rx_status_read(rx_jesd);
+	return axi_jesd204_rx_status_read(app->rx_jesd);
 }

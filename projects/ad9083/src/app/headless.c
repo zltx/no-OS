@@ -87,11 +87,9 @@ int main(void)
 	};
 
 	struct app_ad9083 *app_ad9083;
-	struct app_ad9083_init app_ad9083_init_param = {
-		.uc = uc,
-	};
 
-	struct app_clocing *app_clocking;
+
+	struct app_clocking *app_clocking;
 	struct app_clocking_init app_clocking_init_param = {
 		.lmfc_rate_hz = 3906250,
 		.uc = uc,
@@ -105,13 +103,21 @@ int main(void)
 
 		return FAILURE;
 	}
-
-	status = app_jesd_init(uc);
+	struct app_jesd *app_jesd;
+	struct app_jesd_init init_jesd_init_param = {
+		.uc = uc,
+	};
+	status = app_jesd_init(&app_jesd, &init_jesd_init_param);
 	if (status != SUCCESS) {
 		printf("app_jesd_init() error: %" PRId32 "\n", status);
 
 		return FAILURE;
 	}
+
+	struct app_ad9083_init app_ad9083_init_param = {
+		.uc = uc,
+		.jesd_rx_clk = &app_jesd->jesd_rx_clk,
+	};
 
 	status = app_ad9083_init(&app_ad9083, &app_ad9083_init_param);
 	if (status != SUCCESS) {
@@ -119,7 +125,7 @@ int main(void)
 
 		return FAILURE;
 	}
-	status = app_jesd_status();
+	status = app_jesd_status(app_jesd);
 	if (status != SUCCESS) {
 		printf("jesd_status() error: %"PRIi32"\n", status);
 

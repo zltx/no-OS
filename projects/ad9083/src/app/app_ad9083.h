@@ -7,6 +7,7 @@
 
 struct app_ad9083_init{
 	uint8_t uc;
+	struct clk *jesd_rx_clk;
 };
 
 struct app_ad9083{
