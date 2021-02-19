@@ -73,8 +73,8 @@ int32_t iio_ad9083_init(struct iio_ad9083_desc **desc,
 	ldesc = (struct iio_ad9083_desc*)calloc(1, sizeof(*ldesc));
 	if (!ldesc)
 		return -ENOMEM;
-	ldesc->dev_descriptor.debug_reg_read = (int32_t (*)())adi_ad9083_reg_get;
-	ldesc->dev_descriptor.debug_reg_write = (int32_t (*)())adi_ad9083_reg_set;
+	ldesc->dev_descriptor.debug_reg_read = (int32_t (*)())ad9083_reg_get;
+	ldesc->dev_descriptor.debug_reg_write = (int32_t (*)())ad9083_reg_set;
 
 	*desc = ldesc;
 

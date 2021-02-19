@@ -40,14 +40,13 @@
 /******************************************************************************/
 /***************************** Include Files **********************************/
 /******************************************************************************/
-
-#include <errno.h>
-#include <stdio.h>
+//#include <errno.h>
 #include <stdlib.h>
 #include "ad9083.h"
 #include "error.h"
 #include <inttypes.h>
-#include "adi_ad9083_hal.h"
+#include "delay.h"
+#include "clk.h"
 
 extern uint64_t clk_hz[][3];
 extern uint32_t vmax[];
@@ -61,13 +60,20 @@ extern uint8_t  decimation[][4];
 extern uint8_t  nco0_datapath_mode[];
 extern adi_cms_jesd_param_t jtx_param[];
 extern int32_t adi_ad9083_jtx_startup(adi_ad9083_device_t *device,
-                               adi_cms_jesd_param_t *jtx_param);
+				      adi_cms_jesd_param_t *jtx_param);
 
-#define CHIPID_AD9083	0x00EA
-#define CHIPID_MASK	0xFFFF
-#define SPI_IN_OUT_BUFF_SZ   0x3
+#define CHIPID_AD9083		0x00EA
+#define CHIPID_MASK		0xFFFF
+#define SPI_IN_OUT_BUFF_SZ	0x3
 
-int32_t adi_ad9083_reg_get(struct ad9083_phy *device , uint32_t reg, uint8_t *readval)
+/**
+ * @brief Read register.
+ * @param device - ad9083 device.
+ * @param reg - Address of the register.
+ * @param readval - Value of the register.
+ * @return SUCCESS in case of success, FAILURE otherwise.
+ */
+int32_t ad9083_reg_get(struct ad9083_phy *device , uint32_t reg, uint8_t *readval)
 {
 	int32_t ret = 0;
     uint8_t data[SPI_IN_OUT_BUFF_SZ] = {0};
@@ -77,14 +83,21 @@ int32_t adi_ad9083_reg_get(struct ad9083_phy *device , uint32_t reg, uint8_t *re
         data[1] = (reg & 0xFF);
         ret = spi_write_and_read(device->spi_desc, data, SPI_IN_OUT_BUFF_SZ);
         if (ret != 0)
-        		return ret;
+        	return ret;
 
         *readval = data[2];
     }
-    return API_CMS_ERROR_OK;
+    return SUCCESS;
 }
 
-int32_t adi_ad9083_reg_set(struct ad9083_phy *device, uint32_t reg, uint8_t writeval)
+/**
+ * @brief Write register.
+ * @param device - ad9083 device.
+ * @param reg - Address of the register.
+ * @param writeval - Value of the register.
+ * @return SUCCESS in case of success, FAILURE otherwise.
+ */
+int32_t ad9083_reg_set(struct ad9083_phy *device, uint32_t reg, uint8_t writeval)
 {
 	int32_t ret = 0;
     uint8_t data[SPI_IN_OUT_BUFF_SZ] = {0};
@@ -95,17 +108,17 @@ int32_t adi_ad9083_reg_set(struct ad9083_phy *device, uint32_t reg, uint8_t writ
         data[2] = writeval;
         ret = spi_write_and_read(device->spi_desc, data, SPI_IN_OUT_BUFF_SZ);
         if (ret != 0)
-        		return ret;
+        	return ret;
     }
-    return API_CMS_ERROR_OK;
+    return SUCCESS;
 }
 
 /**
  * Spi write and read compatible with ad9083 API
  * @param user_data
- * @param wbuf Pointer to array with the data to be sent on the SPI
- * @param rbuf Pointer to array where the data to which the SPI will be written
- * @param len The size in bytes allocated for each of the indata and outdata arrays.
+ * @param in_data - Pointer to array with the data to be sent on the SPI
+ * @param out_data - Pointer to array where the data to which the SPI will be written
+ * @param size_bytes - The size in bytes allocated for each of the indata and outdata arrays.
  * @return 0 for success, any non-zero value indicates an error
  */
 static int32_t ad9083_spi_xfer(void *user_data, uint8_t *in_data,
@@ -132,6 +145,14 @@ static int32_t ad9083_spi_xfer(void *user_data, uint8_t *in_data,
 	return SUCCESS;
 }
 
+/**
+ * Log write
+ * @param user_data
+ * @param log_type - Log source type.
+ * @param message - Message.
+ * @param argp - Argp.
+ * @return SUCCESS in case of success, FAILURE otherwise.
+ */
 int32_t ad9083_log_write(void *user_data, int32_t log_type, const char *message,
 			 va_list argp)
 {
@@ -159,7 +180,7 @@ int32_t ad9083_log_write(void *user_data, int32_t log_type, const char *message,
 		break;
 	}
 
-	return 0;
+	return SUCCESS;
 }
 
 /**
@@ -167,14 +188,21 @@ int32_t ad9083_log_write(void *user_data, int32_t log_type, const char *message,
  * Performs a blocking or sleep delay for the specified time in microseconds
  * @param user_data
  * @param us - time to delay/sleep in microseconds.
+ * @return SUCCESS in case of success, FAILURE otherwise.
  */
 static int ad9083_udelay(void *user_data, unsigned int us)
 {
 	udelay(us);
 
-	return 0;
+	return SUCCESS;
 }
 
+/**
+ * Reset pin control
+ * @param user_data
+ * @param enable - State.
+ * @return SUCCESS in case of success, FAILURE otherwise.
+ */
 int32_t ad9083_reset_pin_ctrl(void *user_data, uint8_t enable)
 {
 	struct ad9083_phy *phy = user_data;
@@ -182,32 +210,38 @@ int32_t ad9083_reset_pin_ctrl(void *user_data, uint8_t enable)
 	return gpio_set_value(phy->gpio_reset, enable);
 }
 
-static int32_t ad9083_setup(struct ad9083_phy *phy, uint8_t uc)
+/**
+ * Setup ad9083 device
+ * @param device - The device structure.
+ * @param uc - Configuration selection.
+ * @return SUCCESS in case of success, FAILURE otherwise.
+ */
+static int32_t ad9083_setup(struct ad9083_phy *device, uint8_t uc)
 {
 	int32_t ret;
 
 	/* software reset, resistor is not mounted */
-	ret = adi_ad9083_device_reset(&phy->ad9083, AD9083_SOFT_RESET);
+	ret = adi_ad9083_device_reset(&device->adi_ad9083, AD9083_SOFT_RESET);
 	if (ret != 0)
 		return ret;
 
-	ret = adi_ad9083_device_init(&phy->ad9083);
+	ret = adi_ad9083_device_init(&device->adi_ad9083);
 	if (ret != 0)
 		return ret;
 
-	ret = adi_ad9083_device_clock_config_set(&phy->ad9083, clk_hz[uc][2], clk_hz[uc][0]);
+	ret = adi_ad9083_device_clock_config_set(&device->adi_ad9083, clk_hz[uc][2], clk_hz[uc][0]);
 	if (ret != 0)
 		return ret;
 
-	ret = adi_ad9083_rx_adc_config_set(&phy->ad9083, vmax[uc], fc[uc], rterm[uc], en_hp[uc], backoff[uc], finmax[uc]);
+	ret = adi_ad9083_rx_adc_config_set(&device->adi_ad9083, vmax[uc], fc[uc], rterm[uc], en_hp[uc], backoff[uc], finmax[uc]);
 	if (ret != 0)
 		return ret;
 
-	ret = adi_ad9083_rx_datapath_config_set(&phy->ad9083, nco0_datapath_mode[uc], decimation[uc], nco_freq_hz[uc]);
+	ret = adi_ad9083_rx_datapath_config_set(&device->adi_ad9083, nco0_datapath_mode[uc], decimation[uc], nco_freq_hz[uc]);
 	if (ret != 0)
 		return ret;
 
-	ret = adi_ad9083_jtx_startup(&phy->ad9083, &jtx_param[uc]);
+	ret = adi_ad9083_jtx_startup(&device->adi_ad9083, &jtx_param[uc]);
 	if (ret != 0)
 		return ret;
 
@@ -237,56 +271,54 @@ int32_t ad9083_init(struct ad9083_phy **device, struct ad9083_init_param *init_p
 		goto error_1;
 	ret = gpio_get_optional(&phy->gpio_pd, init_param->gpio_pd);
 	if (ret < 0)
-		goto error_1;
+		goto error_2;
 
 	gpio_direction_output(phy->gpio_reset, GPIO_HIGH);
 
-	/* SPI */
 	ret = spi_init(&phy->spi_desc, init_param->spi_init);
 	if (ret < 0)
-		goto error_2;
-
-	phy->ad9083.hal_info.user_data = phy;
-	phy->ad9083.hal_info.delay_us = ad9083_udelay;
-	phy->ad9083.hal_info.reset_pin_ctrl = ad9083_reset_pin_ctrl;
-	phy->ad9083.hal_info.sdo = SPI_SDIO;
-	phy->ad9083.hal_info.msb = SPI_MSB_FIRST;
-	phy->ad9083.hal_info.addr_inc = SPI_ADDR_INC_AUTO;
-	phy->ad9083.hal_info.spi_xfer = ad9083_spi_xfer;
-	phy->ad9083.hal_info.log_write = ad9083_log_write;
-
-	if (ret < 0)
 		goto error_3;
 
-	ret = adi_ad9083_device_chip_id_get(&phy->ad9083, &chip_id);
+	phy->adi_ad9083.hal_info.user_data = phy;
+	phy->adi_ad9083.hal_info.delay_us = ad9083_udelay;
+	phy->adi_ad9083.hal_info.reset_pin_ctrl = ad9083_reset_pin_ctrl;
+	phy->adi_ad9083.hal_info.sdo = SPI_SDIO;
+	phy->adi_ad9083.hal_info.msb = SPI_MSB_FIRST;
+	phy->adi_ad9083.hal_info.addr_inc = SPI_ADDR_INC_AUTO;
+	phy->adi_ad9083.hal_info.spi_xfer = ad9083_spi_xfer;
+	phy->adi_ad9083.hal_info.log_write = ad9083_log_write;
+
+	ret = adi_ad9083_device_chip_id_get(&phy->adi_ad9083, &chip_id);
 	if (ret < 0) {
 		printf("%s: chip_id failed (%"PRId32")\n", __func__, ret);
-		goto error_3;
+		goto error_4;
 	}
 
 	if ((chip_id.prod_id & CHIPID_MASK) != CHIPID_AD9083) {
 		printf("%s: Unrecognized CHIP_ID 0x%X\n", __func__,
 		       chip_id.prod_id);
 		ret = FAILURE;
-		goto error_3;
+		goto error_4;
 	}
 
 	ret = ad9083_setup(phy, init_param->uc);
 	if (ret < 0) {
 		printf("%s: ad9083_setup failed (%"PRId32")\n", __func__, ret);
-		goto error_3;
+		goto error_4;
 	}
 
 	if (init_param->jesd_rx_clk) {
 		ret = clk_enable(init_param->jesd_rx_clk);
 		if (ret < 0) {
 			printf("Failed to enable JESD204 link: %d\n", ret);
-			return ret;
+			goto error_4;
 		}
 	}
 
-	adi_ad9083_device_api_revision_get(&phy->ad9083, &api_rev[0],
+	adi_ad9083_device_api_revision_get(&phy->adi_ad9083, &api_rev[0],
 					   &api_rev[1], &api_rev[2]);
+	if (ret < 0)
+		goto error_4;
 
 	printf("AD9083 Rev. %u Grade %u (API %u.%u.%u) probed\n",
 	       chip_id.dev_revision, chip_id.prod_grade,
@@ -295,8 +327,10 @@ int32_t ad9083_init(struct ad9083_phy **device, struct ad9083_init_param *init_p
 
 	return SUCCESS;
 
-error_3:
+error_4:
 	spi_remove(phy->spi_desc);
+error_3:
+	gpio_remove(phy->gpio_pd);
 error_2:
 	gpio_remove(phy->gpio_reset);
 error_1:
@@ -306,17 +340,31 @@ error_1:
 	return ret;
 }
 
+/**
+ * @brief Free the resources allocated by ad9083_init().
+ * @param desc - Device descriptor.
+ * @return SUCCESS in case of success, FAILURE otherwise.
+ */
 int32_t ad9083_remove(struct ad9083_phy *dev)
 {
 	int32_t ret = 0;
 
-	spi_remove(dev->spi_desc);
-	gpio_remove(dev->gpio_pd);
-	gpio_remove(dev->gpio_ref_sel);
-	gpio_remove(dev->gpio_reset);
+	if (!dev)
+		return FAILURE;
 
-	if (dev)
-		free(dev);
+	ret = spi_remove(dev->spi_desc);
+	if (ret < 0)
+		return ret;
 
-	return ret;
+	ret = gpio_remove(dev->gpio_pd);
+	if (ret < 0)
+		return ret;
+
+	ret = gpio_remove(dev->gpio_reset);
+	if (ret < 0)
+		return ret;
+
+	free(dev);
+
+	return SUCCESS;
 }

@@ -42,13 +42,8 @@
 /******************************************************************************/
 /***************************** Include Files **********************************/
 /******************************************************************************/
-#include <stdbool.h>
-#include <stddef.h>
-#include <string.h>
-#include "clk.h"
 #include "gpio.h"
 #include "spi.h"
-#include "delay.h"
 #include "adi_ad9083.h"
 
 /******************************************************************************/
@@ -59,6 +54,27 @@
 /*************************** Types Declarations *******************************/
 /******************************************************************************/
 
+/**
+ * @struct ad9083_init_param
+ * @brief Structure holding the parameters ad9083 initialization.
+ */
+struct ad9083_init_param {
+	/* SPI */
+	spi_init_param	*spi_init;
+	/* GPIO reset */
+	gpio_init_param	*gpio_reset;
+	/* GPIO power down */
+	gpio_init_param	*gpio_pd;
+	/* Settings selsction */
+	uint8_t uc;
+	/* jesd receive clock */
+	struct clk *jesd_rx_clk;
+};
+
+/**
+ * @struct ad9083_phy
+ * @brief Structure holding ad9083 descriptor.
+ */
 struct ad9083_phy {
 	/* SPI */
 	spi_desc 	*spi_desc;
@@ -68,21 +84,9 @@ struct ad9083_phy {
 	gpio_desc	*gpio_pd;
 	/* GPIO reference selection */
 	gpio_desc	*gpio_ref_sel;
-	/* RX */
-	uint64_t 	adc_frequency_hz;
-	adi_ad9083_device_t	ad9083;
+	/* adi ad9083 device*/
+	adi_ad9083_device_t	adi_ad9083;
 
-};
-
-struct ad9083_init_param {
-	/* SPI */
-	spi_init_param	*spi_init;
-	/* GPIO reset */
-	gpio_init_param	*gpio_reset;
-	/* GPIO power down */
-	gpio_init_param	*gpio_pd;
-	uint8_t uc;
-	struct clk *jesd_rx_clk;
 };
 
 /******************************************************************************/
@@ -90,11 +94,14 @@ struct ad9083_init_param {
 /******************************************************************************/
 /* Initialize the device. */
 int32_t ad9083_init(struct ad9083_phy **device, struct ad9083_init_param *init_param);
+
 /* Remove the device. */
 int32_t ad9083_remove(struct ad9083_phy *device);
 
-int32_t adi_ad9083_reg_get(struct ad9083_phy *device , uint32_t reg, uint8_t *readval);
+/* Read device register. */
+int32_t ad9083_reg_get(struct ad9083_phy *device , uint32_t reg, uint8_t *readval);
 
-int32_t adi_ad9083_reg_set(struct ad9083_phy *device, uint32_t reg, uint8_t writeval);
+/* Write device register. */
+int32_t ad9083_reg_set(struct ad9083_phy *device, uint32_t reg, uint8_t writeval);
 
 #endif // __AD9083_H__

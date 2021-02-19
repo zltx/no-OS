@@ -25,7 +25,7 @@ int32_t app_ad9083_status(struct app_ad9083 *app)
 	int32_t ret;
 	uint16_t status;
 
-	ret = adi_ad9083_jesd_tx_link_status_get(&app->ad9083_phy->ad9083, &status);
+	ret = adi_ad9083_jesd_tx_link_status_get(&app->ad9083_phy->adi_ad9083, &status);
 	if (ret != SUCCESS)
 		return FAILURE;
 
