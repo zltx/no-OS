@@ -79,6 +79,7 @@ struct axi_jesd204_tx {
 	uint32_t base;
 	uint32_t num_lanes;
 	uint32_t data_path_width;
+	uint32_t data_path_width_tpl;
 	struct jesd204_tx_config config;
 	uint32_t device_clk_khz;
 	uint32_t lane_clk_khz;

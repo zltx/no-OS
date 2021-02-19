@@ -73,6 +73,8 @@
 
 #define JESD204_RX_REG_LINK_CONF0		0x210
 
+#define JESD204_RX_REG_LINK_CONF4		0x21C
+
 #define JESD204_RX_REG_LINK_CONF2		0x240
 #define JESD204_RX_LINK_CONF2_BUFFER_EARLY_RELEASE	BIT(16)
 
@@ -504,6 +506,7 @@ int32_t axi_jesd204_rx_apply_config(struct axi_jesd204_rx *jesd,
 int32_t axi_jesd204_rx_init(struct axi_jesd204_rx **jesd204,
 			    const struct jesd204_rx_init *init)
 {
+	uint16_t beats_per_multiframe;
 	struct axi_jesd204_rx *jesd;
 	uint32_t synth_1;
 	uint32_t magic;
@@ -542,6 +545,7 @@ int32_t axi_jesd204_rx_init(struct axi_jesd204_rx **jesd204,
 			    &jesd->data_path_width);
 	axi_jesd204_rx_read(jesd, JESD204_RX_REG_SYNTH_REG_1,
 			    &synth_1);
+
 	jesd->encoder = JESD204_RX_ENCODER_GET(synth_1);
 
 	if (jesd->encoder == JESD204_RX_ENCODER_UNKNOWN)
@@ -554,6 +558,14 @@ int32_t axi_jesd204_rx_init(struct axi_jesd204_rx **jesd204,
 	jesd->config.subclass_version = init->subclass;
 
 	axi_jesd204_rx_lane_clk_disable(jesd);
+
+	if (PCORE_VERSION_MAJOR(jesd->version) >= 2 ||
+	    (PCORE_VERSION_MAJOR(jesd->version) == 1 && PCORE_VERSION_MINOR(jesd->version) >= 7)) {
+		jesd->data_path_width_tpl = (jesd->data_path_width >> 8) & 0x0F;
+		jesd->data_path_width &= 0xFF;
+		beats_per_multiframe = ((init->octets_per_frame * init->frames_per_multiframe) / jesd->data_path_width_tpl) - 1;
+		axi_jesd204_rx_write(jesd, JESD204_RX_REG_LINK_CONF4, beats_per_multiframe);
+	}
 
 	status = axi_jesd204_rx_apply_config(jesd, &jesd->config);
 	if (status != SUCCESS)
