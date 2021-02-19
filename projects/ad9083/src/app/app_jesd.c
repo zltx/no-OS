@@ -40,6 +40,7 @@
 /******************************************************************************/
 /***************************** Include Files **********************************/
 /******************************************************************************/
+
 #include <stdlib.h>
 #include "axi_jesd204_rx.h"
 #include "axi_adxcvr.h"
@@ -49,18 +50,23 @@
 #include "app_jesd.h"
 #include "adi_cms_api_common.h"
 #include "axi_jesd204_rx.h"
+
 /******************************************************************************/
 /************************ Variables Definitions *******************************/
 /******************************************************************************/
 
 extern adi_cms_jesd_param_t jtx_param[];
 extern uint64_t clk_hz[][3];
+
 /******************************************************************************/
 /************************** Functions Implementation **************************/
 /******************************************************************************/
 
 /**
  * @brief Application JESD setup.
+ * @param app - JESD app descriptor.
+ * @param init_param - The structure that contains the JESD app initial
+ * 		       parameters.
  * @return SUCCESS in case of success, FAILURE otherwise.
  */
 int32_t app_jesd_init(struct app_jesd **app, struct app_jesd_init *init_param)
@@ -97,13 +103,13 @@ int32_t app_jesd_init(struct app_jesd **app, struct app_jesd_init *init_param)
 	status = axi_jesd204_rx_init(&app_jesd->rx_jesd, &rx_jesd_init);
 	if (status != SUCCESS) {
 		printf("error: %s: axi_jesd204_rx_init() failed\n", rx_jesd_init.name);
-		return FAILURE;
+		goto error_0;
 	}
 
 	status = adxcvr_init(&app_jesd->rx_adxcvr, &rx_adxcvr_init);
 	if (status != SUCCESS) {
 		printf("error: %s: adxcvr_init() failed\n", rx_adxcvr_init.name);
-		return FAILURE;
+		goto error_1;
 	}
 
 	app_jesd->rx_jesd_clk.xcvr = app_jesd->rx_adxcvr;
@@ -118,9 +124,41 @@ int32_t app_jesd_init(struct app_jesd **app, struct app_jesd_init *init_param)
 	*app = app_jesd;
 
 	return SUCCESS;
+
+error_1:
+	axi_jesd204_rx_remove(app_jesd->rx_jesd);
+error_0:
+	free(app_jesd);
+
+	return FAILURE;
 }
 
 uint32_t app_jesd_status(struct app_jesd *app)
 {
 	return axi_jesd204_rx_status_read(app->rx_jesd);
+}
+
+/**
+ * @brief Free the resources allocated by app_jesd_init().
+ * @param desc - App descriptor.
+ * @return SUCCESS in case of success, FAILURE otherwise.
+ */
+int32_t app_jesd_remove(struct app_jesd *app)
+{
+	int32_t ret;
+
+	if (!app)
+		return FAILURE;
+
+	ret = axi_jesd204_rx_remove(app->rx_jesd);
+	if (ret < 0)
+		return ret;
+
+	ret = adxcvr_remove(app->rx_adxcvr);
+	if (ret < 0)
+		return ret;
+
+	free(app);
+
+	return SUCCESS;
 }

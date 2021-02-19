@@ -47,7 +47,6 @@
 #include "iio.h"
 #include "parameters.h"
 #include "app_iio.h"
-#include "ad9083.h"
 #include "irq.h"
 #include "irq_extra.h"
 
@@ -62,11 +61,20 @@ struct iio_data_buffer g_read_buff = {
 
 /**
  * @brief Application IIO setup.
+ * @param app_iio_init - IIO app setup parameter.
  * @return SUCCESS in case of success, FAILURE otherwise.
  */
 int32_t iio_server_init(struct app_iio_init *app_iio_init)
 {
+	struct iio_init_param iio_init_par;
+	struct iio_desc *iio_app_desc;
+	struct iio_axi_adc_desc *iio_axi_adc_desc;
+	struct iio_ad9083_desc *iio_ad9083_desc;
+	struct iio_device *adc_dev_desc;
+	struct iio_device *ad9083_dev_desc;
 	struct irq_ctrl_desc *irq_desc;
+	int32_t status;
+
 	struct xil_irq_init_param xil_irq_init_par = {
 		.type = IRQ_PS,
 	};
@@ -84,23 +92,15 @@ int32_t iio_server_init(struct app_iio_init *app_iio_init)
 		.extra = &xil_uart_init_par,
 	};
 
-	struct iio_init_param iio_init_par;
-	struct iio_desc *iio_app_desc;
-	struct iio_axi_adc_desc *iio_axi_adc_desc;
-	struct iio_ad9083_desc *iio_ad9083_desc;
-	struct iio_device *adc_dev_desc;
-	struct iio_device *ad9083_dev_desc;
-	int32_t status;
-
 	status = irq_ctrl_init(&irq_desc, &irq_init_par);
 	if(status < 0)
 		return status;
+
 	xil_uart_init_par.irq_desc = irq_desc;
 
 	status = irq_global_enable(irq_desc);
 	if (status < 0)
 		return status;
-	
 	
 	iio_init_par.phy_type = USE_UART;
 	iio_init_par.uart_init_param = &uart_init_par;

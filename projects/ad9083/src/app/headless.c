@@ -44,28 +44,19 @@
 #include <stdio.h>
 #include "ad9083.h"
 #include "inttypes.h"
-#include "spi.h"
-#include "spi_extra.h"
-#include "gpio_extra.h"
 #include "error.h"
-#include "delay.h"
 #include "parameters.h"
-#include "util.h"
-#include "axi_jesd204_tx.h"
-#include "axi_adc_core.h"
-#include "axi_dmac.h"
 #include "app_clocking.h"
 #include "app_jesd.h"
 #include "app_ad9083.h"
-#include "ad9528.h"
 
 #ifdef IIO_SUPPORT
 #include "app_iio.h"
 #ifdef XILINX_PLATFORM
 #include <xil_cache.h>
-#endif
-#endif
-extern struct axi_jesd204_rx *rx_jesd;
+#endif /* XILINX_PLATFORM */
+#endif /* IIO_SUPPORT */
+
 int main(void)
 {
 	/* select configuration from uc_settings */
@@ -73,6 +64,9 @@ int main(void)
 	int32_t status;
 	struct axi_adc *rx_adc;
 	struct axi_dmac *rx_dmac;
+	struct app_ad9083 *app_ad9083;
+	struct app_clocking *app_clocking;
+	struct app_jesd *app_jesd;
 
 	struct axi_adc_init rx_adc_init = {
 		.name = "rx_adc",
@@ -86,13 +80,18 @@ int main(void)
 		0
 	};
 
-	struct app_ad9083 *app_ad9083;
-
-
-	struct app_clocking *app_clocking;
 	struct app_clocking_init app_clocking_init_param = {
-		.lmfc_rate_hz = 3906250,
 		.uc = uc,
+		.lmfc_rate_hz = 3906250,
+	};
+
+	struct app_jesd_init init_jesd_init_param = {
+		.uc = uc,
+	};
+
+	struct app_ad9083_init app_ad9083_init_param = {
+		.uc = uc,
+		.jesd_rx_clk = NULL,
 	};
 
 	printf("Hello\n");
@@ -103,10 +102,7 @@ int main(void)
 
 		return FAILURE;
 	}
-	struct app_jesd *app_jesd;
-	struct app_jesd_init init_jesd_init_param = {
-		.uc = uc,
-	};
+
 	status = app_jesd_init(&app_jesd, &init_jesd_init_param);
 	if (status != SUCCESS) {
 		printf("app_jesd_init() error: %" PRId32 "\n", status);
@@ -114,10 +110,7 @@ int main(void)
 		return FAILURE;
 	}
 
-	struct app_ad9083_init app_ad9083_init_param = {
-		.uc = uc,
-		.jesd_rx_clk = &app_jesd->jesd_rx_clk,
-	};
+	app_ad9083_init_param.jesd_rx_clk = &app_jesd->jesd_rx_clk,
 
 	status = app_ad9083_init(&app_ad9083, &app_ad9083_init_param);
 	if (status != SUCCESS) {
@@ -125,6 +118,7 @@ int main(void)
 
 		return FAILURE;
 	}
+
 	status = app_jesd_status(app_jesd);
 	if (status != SUCCESS) {
 		printf("jesd_status() error: %"PRIi32"\n", status);

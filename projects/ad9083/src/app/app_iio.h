@@ -3,7 +3,7 @@
  *   @brief  Application IIO setup.
  *   @author Cristian Pop (cristian.pop@analog.com)
 ********************************************************************************
- * Copyright 2020(c) Analog Devices, Inc.
+ * Copyright 2021(c) Analog Devices, Inc.
  *
  * All rights reserved.
  *
@@ -42,14 +42,23 @@
 /******************************************************************************/
 /***************************** Include Files **********************************/
 /******************************************************************************/
+
 #include <stdint.h>
 #include "iio_ad9083.h"
 #include "iio_axi_adc.h"
+
 /******************************************************************************/
 /************************ Functions Declarations ******************************/
 /******************************************************************************/
+
+/**
+ * @struct app_iio_init
+ * @brief Structure holding the parameters for iio app initialization.
+ */
 struct app_iio_init{
+	/* Parameters for iio_axi_adc */
 	struct iio_axi_adc_init_param *adc_init;
+	/* Pointer to ad9083 device */
 	struct ad9083_phy *ad9083_phy;
 };
 

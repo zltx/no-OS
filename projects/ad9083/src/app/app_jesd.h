@@ -45,6 +45,7 @@
 #include <stdint.h>
 #include "clk.h"
 #include "jesd204_clk.h"
+#include "axi_jesd204_rx.h"
 
 struct app_jesd_init{
 	uint8_t uc;
