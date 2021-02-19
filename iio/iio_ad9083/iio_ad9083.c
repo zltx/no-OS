@@ -1,5 +1,5 @@
 /***************************************************************************//**
- *   @file   ad9083_dev.c
+ *   @file   iio_ad9083.c
  *   @brief  Implementation of iio_ad9083.c.
  *   @author Cristian Pop (cristian.pop@analog.com)
 ********************************************************************************
@@ -40,28 +40,10 @@
 /******************************************************************************/
 /***************************** Include Files **********************************/
 /******************************************************************************/
-
-#include "iio_ad9083.h"
-
-#include <inttypes.h>
 #include <stdlib.h>
-#include <string.h>
+#include "iio_ad9083.h"
 #include "error.h"
-#include "util.h"
 #include "ad9083.h"
-
-static struct iio_device iio_ad9083_dev_in_descriptor = {
-	.num_ch = AD9083_NUM_CHANNELS,
-	.channels = NULL,
-	.attributes = NULL,
-	.debug_attributes = NULL,
-	.buffer_attributes = NULL,
-	.prepare_transfer = NULL,
-	.end_transfer = NULL,
-	.read_dev = NULL,
-	.debug_reg_read = (int32_t (*)())adi_ad9083_reg_get,
-	.debug_reg_write = (int32_t (*)())adi_ad9083_reg_set,
-};
 
 /******************************************************************************/
 /************************ Functions Definitions *******************************/
@@ -72,9 +54,10 @@ static struct iio_device iio_ad9083_dev_in_descriptor = {
  * @param desc - Descriptor.
  * @param dev_descriptor - iio device descriptor.
  */
-void iio_ad9083_get_dev_descriptor(struct iio_device **dev_descriptor)
+void iio_ad9083_get_dev_descriptor(struct iio_ad9083_desc *desc,
+		   struct iio_device **dev_descriptor)
 {
-	*dev_descriptor = &iio_ad9083_dev_in_descriptor;
+	*dev_descriptor = &desc->dev_descriptor;
 }
 /**
  * @brief iio ad9083 init function, registers a ad9083 .
@@ -82,7 +65,7 @@ void iio_ad9083_get_dev_descriptor(struct iio_device **dev_descriptor)
  * @param init - Configuration structure.
  * @return SUCCESS in case of success, FAILURE otherwise.
  */
-int32_t iio_ad9083_dev_init(struct iio_ad9083_desc **desc,
+int32_t iio_ad9083_init(struct iio_ad9083_desc **desc,
 			  struct iio_ad9083_init_param *init)
 {
 	struct iio_ad9083_desc *ldesc;
@@ -90,6 +73,8 @@ int32_t iio_ad9083_dev_init(struct iio_ad9083_desc **desc,
 	ldesc = (struct iio_ad9083_desc*)calloc(1, sizeof(*ldesc));
 	if (!ldesc)
 		return -ENOMEM;
+	ldesc->dev_descriptor.debug_reg_read = (int32_t (*)())adi_ad9083_reg_get;
+	ldesc->dev_descriptor.debug_reg_write = (int32_t (*)())adi_ad9083_reg_set;
 
 	*desc = ldesc;
 
@@ -101,7 +86,7 @@ int32_t iio_ad9083_dev_init(struct iio_ad9083_desc **desc,
  * @param desc - Descriptor.
  * @return SUCCESS in case of success, FAILURE otherwise.
  */
-int32_t iio_ad9083_dev_remove(struct iio_ad9083_desc *desc)
+int32_t iio_ad9083_remove(struct iio_ad9083_desc *desc)
 {
 	if (!desc)
 		return FAILURE;

@@ -43,7 +43,6 @@
 /******************************************************************************/
 /***************************** Include Files **********************************/
 /******************************************************************************/
-
 #include <stdio.h>
 #include "iio_types.h"
 
@@ -51,12 +50,13 @@
 /*************************** Types Declarations *******************************/
 /******************************************************************************/
 
-#define AD9083_NUM_CHANNELS	2
 /**
  * @struct iio_ad9083_desc
  * @brief Desciptor.
  */
 struct iio_ad9083_desc {
+	/** iio device descriptor */
+	struct iio_device dev_descriptor;
 };
 
 /**
@@ -64,7 +64,6 @@ struct iio_ad9083_desc {
  * @brief iio ad9083 configuration.
  */
 struct iio_ad9083_init_param {
-
 };
 
 /******************************************************************************/
@@ -72,12 +71,13 @@ struct iio_ad9083_init_param {
 /******************************************************************************/
 
 /** Get device descriptor. */
-void iio_ad9083_get_dev_descriptor(struct iio_device **dev_descriptor);
+void iio_ad9083_get_dev_descriptor(struct iio_ad9083_desc *desc,
+		   	   	   struct iio_device **dev_descriptor);
 
 /* Init function. */
-int32_t iio_ad9083_dev_init(struct iio_ad9083_desc **desc,
+int32_t iio_ad9083_init(struct iio_ad9083_desc **desc,
 			  struct iio_ad9083_init_param *param);
 /* Free the resources allocated by iio_ad9083_init(). */
-int32_t iio_ad9083_dev_remove(struct iio_ad9083_desc *desc);
+int32_t iio_ad9083_remove(struct iio_ad9083_desc *desc);
 
 #endif /* IIO_AD9083_H_ */

@@ -87,6 +87,7 @@ int32_t iio_server_init(struct app_iio_init *app_iio_init)
 	struct iio_init_param iio_init_par;
 	struct iio_desc *iio_app_desc;
 	struct iio_axi_adc_desc *iio_axi_adc_desc;
+	struct iio_ad9083_desc *iio_ad9083_desc;
 	struct iio_device *adc_dev_desc;
 	struct iio_device *ad9083_dev_desc;
 	int32_t status;
@@ -117,7 +118,11 @@ int32_t iio_server_init(struct app_iio_init *app_iio_init)
 	if (status < 0)
 		return status;
 
-	iio_ad9083_get_dev_descriptor(&ad9083_dev_desc);
+	status = iio_ad9083_init(&iio_ad9083_desc, NULL);
+	if (status < 0)
+		return status;
+
+	iio_ad9083_get_dev_descriptor(iio_ad9083_desc, &ad9083_dev_desc);
 	status = iio_register(iio_app_desc, ad9083_dev_desc, "ad9083",
 			app_iio_init->ad9083_phy, NULL, NULL);
 	if (status < 0)
