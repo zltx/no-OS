@@ -56,7 +56,7 @@
 
 /**
  * @struct ad9083_init_param
- * @brief Structure holding the parameters ad9083 initialization.
+ * @brief Structure holding the parameters for ad9083 initialization.
  */
 struct ad9083_init_param {
 	/* SPI */
