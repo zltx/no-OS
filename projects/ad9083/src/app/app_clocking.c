@@ -36,30 +36,25 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 *******************************************************************************/
-// stdlibs
-#include <string.h>
+
+/******************************************************************************/
+/***************************** Include Files **********************************/
+/******************************************************************************/
+
 #include <stdio.h>
 #include <stdlib.h>
-
-#include "ad9528.h"
-
-// platform drivers
 #include "spi.h"
 #include "spi_extra.h"
 #include "gpio.h"
 #include "gpio_extra.h"
 #include "error.h"
-#include "delay.h"
-#include "util.h"
-
-// hal
 #include "parameters.h"
-
-// devices
 #include "app_ad9083.h"
-
-// header
 #include "app_clocking.h"
+
+/******************************************************************************/
+/********************** Macros and Constants Definitions **********************/
+/******************************************************************************/
 
 #define FPGA_SYSREF_CLK	0
 #define FPGA_GLBL_CLK	1
@@ -67,9 +62,19 @@
 #define ADC_SYSREF_CLK	12
 #define ADC_REF_CLK	13
 
-
 extern uint64_t clk_hz[][3];
 
+/******************************************************************************/
+/************************ Functions Definitions *******************************/
+/******************************************************************************/
+
+/**
+ * @brief Initialize the clocking app.
+ * @param app - Clocking app descriptor.
+ * @param init_param - The structure that contains the clocking app initial
+ * 		       parameters.
+ * @return SUCCESS in case of success, FAILURE otherwise.
+ */
 int32_t app_clocking_init(struct app_clocking **app, struct app_clocking_init *init_param)
 {
 	struct app_clocking *app_clocking;
@@ -196,7 +201,7 @@ int32_t app_clocking_init(struct app_clocking **app, struct app_clocking_init *i
 	ret = ad9528_setup(&app_clocking->clkchip_device, ad9528_param);
 	if(ret < 0) {
 		printf("error: ad9528_setup() failed with %d\n", ret);
-		goto error_1;
+		goto error_0;
 	}
 
 	fpga_glb_clk = ad9528_clk_round_rate(app_clocking->clkchip_device, FPGA_GLBL_CLK, clk_hz[uc][1] / 4);
@@ -240,10 +245,28 @@ int32_t app_clocking_init(struct app_clocking **app, struct app_clocking_init *i
 error_1:
 	ad9528_remove(app_clocking->clkchip_device);
 error_0:
+	free(app_clocking);
+
 	return FAILURE;
 }
 
-void app_clocking_deinit(struct app_clocking *app)
+/**
+ * @brief Free the resources allocated by app_clocking_init().
+ * @param desc - App descriptor.
+ * @return SUCCESS in case of success, FAILURE otherwise.
+ */
+int32_t app_clocking_remove(struct app_clocking *app)
 {
-	ad9528_remove(app->clkchip_device);
+	int32_t ret;
+
+	if (!app)
+		return FAILURE;
+
+	ret = ad9528_remove(app->clkchip_device);
+	if (ret < 0)
+		return ret;
+
+	free(app);
+
+	return SUCCESS;
 }

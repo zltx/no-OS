@@ -65,7 +65,7 @@ struct ad9083_init_param {
 	gpio_init_param	*gpio_reset;
 	/* GPIO power down */
 	gpio_init_param	*gpio_pd;
-	/* Settings selsction */
+	/* Settings selection */
 	uint8_t uc;
 	/* jesd receive clock */
 	struct clk *jesd_rx_clk;
